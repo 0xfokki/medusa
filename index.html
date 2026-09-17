@@ -1,0 +1,2076 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MEDUSA - what retail thinks, what retail does</title>
+<meta name="description" content="A lie detector for the crowd. MEDUSA is a jellyfish built out of retail: people tell it what they think, the chain tells it what they did, and it reads the two against each other. Where the crowd's words and money disagree.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600&family=Archivo:wdth,wght@62..125,100..900&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Acid Intelligence / Neon Dark - background & surface tiers */
+  --void:#030812; --surface:#0a1120; --panel:#0b1426; --panel2:#0f1a2e; --panel3:#142138;
+  --term-bg:#050a16;
+  --border:#1e2b42; --divider:#162238; --border-hover:#2b3d5e;
+  /* text */
+  --bone:#e8edf4; --mist:#8b9bb0; --ash:#8b9bb0; --dim:#7b8ca3; --line:#162238;
+  --accent:#e8eef4;
+  /* One positive color, not two: acid lime is MEDUSA's own signal AND the only "up" color
+     on the site. No separate green - buy/bullish/positive all resolve to the same lime. */
+  --medusa:#5db7e8; --medusa-muted:#315f7a;
+  --bull:#5db7e8; --bear:#9aa8b8;
+  --greed:#5db7e8; --fomo:#4a91bc; --fear:#c8d7e6; --hopium:#eef2f7; --cope:#8fa0b4;
+  --buy:#5db7e8; --sell:#9aa8b8;
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"DM Mono",ui-monospace,SFMono-Regular,Consolas,monospace;
+  --display:"Archivo","Arial Narrow",Impact,sans-serif;
+}
+*{box-sizing:border-box}
+html{background:var(--void);scroll-behavior:smooth}
+body{margin:0;background:var(--void);color:var(--bone);font-family:var(--sans);font-weight:300;
+  font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1280px;margin:0 auto;padding:0 32px}
+.mono{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ash)}
+
+/* ---------- nav ---------- */
+/* the fade spans the viewport (so the jellyfish underneath always has something to sit
+   against), but the actual bar - logo, links, button - lives in the same .wrap column as
+   every section below it, not pinned to the screen edges */
+.nav{position:fixed;top:0;left:0;right:0;z-index:40;padding:22px 0;
+  background:linear-gradient(#000 0%,rgba(0,0,0,.72) 60%,transparent)}
+.navInner{display:flex;align-items:center;gap:28px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:500;letter-spacing:.2em;font-size:13px}
+.glyph{width:18px;height:18px;border-radius:50%;
+  background:conic-gradient(from 200deg,var(--fear),var(--fomo),var(--greed),var(--cope),var(--hopium),var(--fear));
+  -webkit-mask:radial-gradient(circle,transparent 4px,#000 5px);mask:radial-gradient(circle,transparent 4px,#000 5px);
+  animation:spin 9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.links{display:flex;gap:26px;margin-left:auto}
+.links a{color:var(--ash);font-size:14px;transition:color .2s}
+.links a:hover{color:var(--bone)}
+/* where MEDUSA lives outside this page: X now, GitHub reserved */
+.social{display:flex;align-items:center;gap:8px;margin-left:8px}
+.soc{position:relative;width:34px;height:34px;border-radius:50%;border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;
+  color:var(--ash);transition:color .2s,border-color .2s,background .2s,box-shadow .2s}
+.soc svg{width:15px;height:15px;fill:currentColor}
+.soc:hover{color:var(--bone);border-color:var(--medusa);background:rgba(93,183,232,.08);box-shadow:0 0 0 4px rgba(93,183,232,.08)}
+.soc.soon{color:var(--dim);border-style:dashed;cursor:default}
+.soc.soon:hover{color:var(--dim);border-color:var(--border-hover);background:none;box-shadow:none}
+.soc .hint{position:absolute;top:100%;left:50%;transform:translate(-50%,6px);font:500 9px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;
+  color:var(--dim);opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap}
+.soc.soon:hover .hint{opacity:1}
+.sheetSocial{display:flex;gap:12px;margin-top:18px}
+.sheetSocial .soc{width:auto;height:40px;border-radius:999px;padding:0 16px;gap:10px;font-size:13px;color:var(--ash)}
+.sheetSocial .soc.soon{color:var(--dim)}
+@media (max-width:900px){ .nav .social{display:none} }
+/* phone menu: a burger in the bar, a sheet over the page with the four sections */
+.burger{display:none;width:40px;height:40px;margin-left:8px;padding:0;border:0;background:none;cursor:pointer;
+  position:relative;flex:none;border-radius:50%}
+.burger i{position:absolute;left:11px;width:18px;height:1.5px;background:var(--bone);transition:transform .25s,opacity .2s}
+.burger i:first-child{top:16px} .burger i:last-child{top:23px}
+body.menu .burger i:first-child{transform:translateY(3.5px) rotate(45deg)}
+body.menu .burger i:last-child{transform:translateY(-3.5px) rotate(-45deg)}
+.sheet{position:fixed;inset:0;z-index:39;background:var(--void);display:flex;flex-direction:column;justify-content:center;
+  padding:80px 24px 36px;opacity:0;visibility:hidden;transition:opacity .25s,visibility .25s}
+body.menu .sheet{opacity:1;visibility:visible}
+body.menu{overflow:hidden}
+.sheetLinks{display:flex;flex-direction:column;margin-bottom:28px}
+.sheet .item{display:flex;align-items:baseline;gap:16px;padding:16px 0;border-top:1px solid var(--border);
+  font-family:var(--display);font-weight:800;font-stretch:64%;text-transform:uppercase;font-size:34px;line-height:1;color:var(--bone);
+  transform:translateY(10px);opacity:0;transition:transform .35s,opacity .35s}
+.sheet .item:last-child{border-bottom:1px solid var(--border)}
+.sheet .item small{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.2em;color:var(--medusa);width:30px;flex:none}
+body.menu .sheet .item{transform:none;opacity:1}
+body.menu .sheet .item:nth-child(2){transition-delay:.05s} body.menu .sheet .item:nth-child(3){transition-delay:.1s} body.menu .sheet .item:nth-child(4){transition-delay:.15s}
+.sheet .pill{align-self:stretch}
+.sheetFoot{margin-top:auto;color:var(--dim);text-transform:none;letter-spacing:.04em;font-size:11px}
+.pill{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:999px;
+  background:var(--accent);color:#000;font:inherit;font-weight:400;font-size:15px;padding:14px 26px;
+  cursor:pointer;white-space:nowrap;transition:filter .2s,transform .2s}
+.pill:hover{filter:brightness(.88)}
+.pill:active{transform:scale(.97)}
+.pill.small{padding:10px 18px;font-size:13px}
+.pill.cta{animation:cta 2.8s ease-in-out infinite}
+@keyframes cta{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}50%{box-shadow:0 0 30px 1px rgba(255,255,255,.28)}}
+
+/* ---------- hero ---------- */
+.hero{position:relative;height:max(760px,100vh);max-height:960px;overflow:hidden}
+#mind{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:pan-y}
+#mind.drag{cursor:grabbing}
+.heroCopy{position:relative;z-index:2;max-width:640px;padding-top:clamp(130px,19vh,190px);pointer-events:none}
+.heroCopy>*{pointer-events:auto}
+.eyebrow{display:flex;align-items:center;gap:10px}
+.live{width:7px;height:7px;border-radius:50%;background:var(--medusa);box-shadow:0 0 0 0 rgba(93,183,232,.6);
+  animation:live 2s ease-out infinite}
+@keyframes live{70%{box-shadow:0 0 0 9px rgba(93,183,232,0)}100%{box-shadow:0 0 0 0 rgba(93,183,232,0)}}
+h1{font-family:var(--display);font-weight:800;font-stretch:64%;text-transform:uppercase;font-size:clamp(42px,4.9vw,66px);line-height:.94;letter-spacing:-.005em;word-spacing:.06em;margin:22px 0 26px}
+h1 em{font-style:normal;color:transparent;-webkit-text-stroke:max(1.3px,.02em) var(--bone)}
+h1 .soft{color:var(--dim)}
+.lede{color:var(--mist);font-size:17px;max-width:46ch;margin:0}
+.verdict{margin:28px 0 0;font-family:var(--sans);font-size:21px;font-weight:400;letter-spacing:-.01em;line-height:1.25;min-height:2.6em;
+  transition:opacity .28s,transform .28s}
+.verdict.out{opacity:0;transform:translateY(6px)}
+.verdict em{font-style:normal;font-weight:500}
+.feed{display:flex;gap:12px;align-items:center;margin-top:30px;max-width:560px}
+.feed input{flex:1;min-width:0;background:transparent;border:0;border-bottom:1px solid var(--border);color:var(--bone);
+  font:inherit;font-size:17px;font-weight:300;padding:12px 2px;outline:none;transition:border-color .3s}
+.feed input::placeholder{color:var(--dim)}
+.feed input:focus{border-bottom-color:var(--accent)}
+.stats{display:flex;gap:40px;margin-top:36px}
+.stats b{display:block;font-family:var(--mono);font-weight:400;font-size:24px;letter-spacing:-.01em;transition:color .4s}
+.stats b.bump{text-shadow:0 0 14px rgba(255,255,255,.7)}
+.stats span{font-size:12px;color:var(--ash)}
+#sState{color:var(--medusa)}
+
+.feedmsg{margin:12px 0 0;font-size:13px;color:var(--sell);min-height:1.2em}
+.feedmsg.ok{color:var(--buy)}
+.card{margin-top:24px;max-width:560px;padding:18px 20px;border-radius:24px;
+  background:linear-gradient(140deg,rgba(255,255,255,.09),rgba(255,255,255,.02) 60%,rgba(0,0,0,0));
+  animation:rise .5s ease-out}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.card q{display:block;font-size:18px;quotes:"\201C" "\201D";margin-bottom:10px}
+.card .res{font-size:14px;color:var(--mist)}
+.card .res b{font-weight:500}
+.card .acts{display:flex;gap:18px;margin-top:14px;font-size:14px}
+.card .acts a,.card .acts button{color:var(--bone);background:none;border:0;padding:0;font:inherit;cursor:pointer;
+  border-bottom:1px solid var(--border)}
+
+.legend{position:absolute;z-index:2;right:32px;bottom:34px;display:grid;grid-template-columns:auto;
+  gap:6px 22px;font-size:12px;color:var(--ash);pointer-events:none}
+.legend i{display:inline-block;width:7px;height:7px;border-radius:50%;margin:0 5px 0 8px;vertical-align:1px;
+  animation:pp 2.6s ease-in-out infinite}
+@keyframes pp{50%{opacity:.35;transform:scale(.7)}}
+.tip{position:absolute;z-index:5;max-width:260px;padding:10px 13px;border-radius:14px;background:rgba(12,12,12,.94);
+  font-size:13px;line-height:1.4;pointer-events:none;transform:translate(14px,-50%)}
+.tip small{display:block;margin-top:5px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+
+
+/* ---------- sections ---------- */
+section.block{padding:88px 0 24px}
+.head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:40px;align-items:end;margin-bottom:56px}
+h2{font-family:var(--display);font-weight:800;font-stretch:64%;text-transform:uppercase;font-size:clamp(34px,4.3vw,62px);line-height:.95;letter-spacing:-.005em;word-spacing:.06em;margin:0}
+.head p{color:var(--ash);margin:0;max-width:48ch;justify-self:end}
+.rule{display:flex;align-items:baseline;gap:18px;border-top:1px solid var(--border);padding-top:18px;margin:0 0 44px}
+.rule .num{font-family:var(--display);font-weight:800;font-stretch:64%;font-size:clamp(34px,3.4vw,48px);line-height:.8;
+  color:transparent;-webkit-text-stroke:1.2px var(--medusa);letter-spacing:.01em}
+.rule h3{font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--bone);margin:0}
+.rule .r{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--dim)}
+.rule .dot{width:5px;height:5px;border-radius:50%;background:var(--accent);align-self:center;animation:pp 2.4s ease-in-out infinite}
+.reveal{opacity:0;transform:translateY(28px);transition:opacity 1s ease,transform 1s cubic-bezier(.2,.8,.2,1)}
+.reveal.in{opacity:1;transform:none}
+
+/* daily read */
+.rule .liveNote{display:inline-flex;align-items:center;gap:8px}
+.summary{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);
+  border-radius:20px;overflow:hidden;margin-bottom:28px}
+.summary>div{background:var(--panel);padding:18px 20px}
+.summary .k{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ash)}
+.summary .v{font-family:var(--mono);font-size:22px;margin-top:8px}
+.moodbar{display:flex;height:6px;border-radius:6px;overflow:hidden;margin-top:12px;background:#151515}
+.moodbar i{display:block;height:100%;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+/* a running tape, not a grid: cards flow by on their own so a quiet day (a handful of
+   cards) still reads as full, and a loud one (a dozen) never crowds the page. Clipped by
+   the viewport, with the content doubled underneath so the loop never shows a seam. */
+.tweetsViewport{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 40px,#000 calc(100% - 40px),transparent 100%);
+  mask-image:linear-gradient(90deg,transparent 0,#000 40px,#000 calc(100% - 40px),transparent 100%)}
+.tweets{display:flex;gap:16px;width:max-content;align-items:stretch;
+  animation:tape var(--dur,60s) linear infinite}
+.tweetsViewport:hover .tweets,.tweets.still{animation-play-state:paused}
+@media (prefers-reduced-motion: reduce){ .tweets{animation:none} }
+@keyframes tape{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.tw{width:340px;flex:0 0 auto;background:var(--panel);border:1px solid var(--divider);border-radius:20px;padding:18px 18px 0;display:flex;flex-direction:column;
+  animation:rise .55s ease-out both}
+.tw header{display:flex;align-items:center;gap:11px}
+.tw .av{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:600;font-size:13px;
+  background:var(--panel2);box-shadow:inset 0 0 0 1.5px var(--border)}
+.tw .av{position:relative;overflow:hidden}
+.tw .av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%}
+.tw .who{min-width:0;flex:1}
+.tw .who b{display:block;font-weight:500;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tw .who span{font-size:12px;color:var(--ash)}
+.tw .x{flex:none;color:var(--dim)}
+.tw p{margin:14px 0 14px;font-size:15px;line-height:1.5;color:var(--mist)}
+.tw mark{color:var(--bone);border-radius:4px;padding:1px 4px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.tw mark.bull,.tw mark.bear{background:rgba(255,255,255,.13)}
+.tw .tags{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tw .tag{font-family:var(--mono);font-size:11px;padding:3px 9px;border-radius:999px;border:1px solid var(--border);color:var(--mist)}
+.tw .tag.bull,.tw .tag.bear{border-color:var(--border);color:var(--bone)}
+.tw .eng{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--dim)}
+.tw footer{display:block;margin:16px -18px 0;padding:13px 18px;border-top:1px solid var(--divider);font-size:13px;color:var(--ash);
+  border-radius:0 0 20px 20px;margin-top:auto}
+.tw footer b{font-weight:500}
+.tw footer .verd{display:block;margin-top:4px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.tw footer.no{background:linear-gradient(180deg,rgba(154,168,184,.06),transparent)}
+.tw footer.no .verd{color:var(--sell)}
+.tw footer.ok .verd{color:var(--buy)}
+.sample{margin-top:16px;font-size:12px;color:var(--dim)}
+/* a roadmap line has to look unmistakably unlike a data line: dashed, not solid */
+.roadmap{margin-top:18px;padding:14px 18px;border:1px dashed rgba(255,255,255,.22);border-radius:10px;
+  font-size:12.5px;line-height:1.6;color:var(--ash)}
+.tag-dev{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--dim);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:2px 9px;margin-right:10px;vertical-align:2px}
+/* Cards with depth: lit from above, a soft drop shadow, and a glow in the corner that
+   says bull or bear at a glance. The entrance uses the translate property so it never
+   fights the tilt, which lives on transform. */
+@keyframes riseT{from{opacity:0;translate:0 12px}to{opacity:1;translate:0 0}}
+.tw{position:relative;isolation:isolate;overflow:hidden;
+  background:linear-gradient(180deg,var(--panel3) 0%,var(--panel2) 55%,var(--panel) 100%);
+  border:1px solid rgba(255,255,255,.07);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 26px 50px -26px rgba(0,0,0,.95),0 2px 8px rgba(0,0,0,.55);
+  transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(var(--ty,0px));
+  transition:transform .4s cubic-bezier(.2,.8,.2,1),box-shadow .4s,border-color .4s;
+  animation:riseT .6s ease-out both}
+.tw::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(120% 75% at 0% 0%,var(--glow,transparent) 0%,transparent 60%)}
+.tw::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;opacity:0;transition:opacity .35s;
+  background:radial-gradient(420px circle at var(--mx,50%) var(--my,0%),rgba(255,255,255,.075),transparent 45%)}
+.tw:hover{--ty:-5px;border-color:var(--border-hover);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.11),0 40px 70px -28px rgba(0,0,0,1),0 0 0 1px rgba(255,255,255,.02)}
+.tw:hover::after{opacity:1}
+.tw.bull{--glow:rgba(93,183,232,.13)} .tw.bear{--glow:rgba(154,168,184,.13)}
+.tw.bull mark{background:rgba(93,183,232,.15)} .tw.bear mark{background:rgba(154,168,184,.15)}
+.tw .tag.up{border-color:rgba(93,183,232,.5);color:var(--buy);background:rgba(93,183,232,.08)}
+.tw .tag.down{border-color:rgba(154,168,184,.5);color:var(--sell);background:rgba(154,168,184,.08)}
+.tw footer{background:rgba(0,0,0,.25)}
+.summary{box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 24px 50px -30px rgba(0,0,0,.9)}
+@media (prefers-reduced-motion:reduce){ .tw{transform:none;animation:none} }
+.tw .rank{flex:none;align-self:flex-start;font-family:var(--display);font-weight:800;font-stretch:64%;font-size:24px;line-height:1;color:rgba(255,255,255,.2)}
+.tw .src{flex:none;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--dim)}
+.tw footer.pending{color:var(--dim);font-size:12px}
+.tw footer.pending .verd{color:var(--bone);text-decoration:none;margin-top:0}
+.tw footer.pending .verd:hover{text-decoration:underline}
+.pending{border-bottom:1px solid var(--line)}
+
+/* the hour, read off the chain */
+.hourline{font-size:21px;line-height:1.5;max-width:76ch;margin:0 0 34px;color:var(--ash)}
+.hourline b{font-weight:500;color:var(--bone)}
+.hourline .up{color:var(--buy)} .hourline .down{color:var(--sell)}
+.hourline a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.28)}
+.hourline a:hover{border-bottom-color:var(--bone)}
+/* the formula, drawn instead of just stated */
+.formula{display:flex;align-items:center;gap:18px;margin:8px 0 34px;flex-wrap:wrap}
+.fbox{flex:1;min-width:180px;border:1px solid var(--border);border-radius:10px;padding:16px 18px;
+  background:rgba(255,255,255,.02);font-family:var(--mono)}
+.fbox.fresult{border-color:rgba(93,183,232,.35);background:rgba(93,183,232,.03);box-shadow:0 0 12px rgba(93,183,232,.08)}
+.flbl{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
+.ffrac{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:13px;color:var(--bone)}
+.fnum{padding-bottom:4px;border-bottom:1px solid rgba(255,255,255,.35)}
+.fden{color:var(--ash)}
+.frange{font-size:15px;color:var(--bone);text-align:center}
+.frange span{color:var(--dim);padding:0 6px}
+.fnote{margin-top:10px;font-size:11px;letter-spacing:.04em;color:var(--dim);text-align:center}
+.fresult .fnote{color:var(--medusa);letter-spacing:.08em;text-transform:uppercase;font-size:11px}
+.fop{flex:none;font-family:var(--mono);font-size:18px;color:var(--dim);padding:0 4px}
+@media (max-width:760px){ .formula{flex-direction:column;align-items:stretch} .fop{text-align:center;padding:4px} }
+
+/* the tape: a console window - block-letter mark, two status rows, then a feed of the
+   real rows already on this page arriving one at a time. Gold is MEDUSA and buys, red is
+   sells, everything else is white/gray, so it reads as a log being watched, not a wall
+   of colour */
+.term{position:relative;border:1px solid var(--border);border-radius:8px;background:var(--term-bg);
+  box-shadow:0 40px 80px -40px rgba(0,0,0,.9);font-family:var(--mono);overflow:hidden;font-size:12.5px;line-height:1.55}
+.termbar{display:flex;align-items:center;gap:8px;padding:12px 20px;border-bottom:1px solid var(--border);
+  font-size:11px;color:var(--ash);letter-spacing:.04em}
+.termbar i{width:9px;height:9px;border-radius:50%;background:var(--border);display:inline-block}
+.termbar i:first-child{background:var(--medusa)}
+.termbar .cmd{margin-left:8px}
+.termbar button{margin-left:auto;background:none;border:0;color:var(--dim);font:inherit;letter-spacing:.14em;
+  text-transform:uppercase;cursor:pointer;padding:0}
+.termbar button:hover{color:var(--medusa)}
+.termscreen{padding:22px 24px 18px}
+.termlogo{margin:0 0 6px;font-family:var(--mono);font-size:9px;line-height:1.05;letter-spacing:0;white-space:pre;
+  color:var(--bone);animation:breathe 4.5s ease-in-out infinite}
+@keyframes breathe{0%,100%{color:var(--bone)}50%{color:#b3bfd0}}
+.termtag{color:var(--ash);font-size:11.5px;margin:6px 0 18px}
+.termstat{display:flex;flex-wrap:wrap;align-items:center;gap:6px 0;color:var(--ash);font-size:11.5px}
+.termstat+.termstat{margin-top:4px;color:var(--dim)}
+.termstat .sep{color:var(--dim);padding:0 9px}
+.termstat b{color:var(--medusa);font-weight:500}
+.termstat .ok{background:var(--medusa);color:#03111c;padding:1px 7px;font-weight:500;letter-spacing:.08em}
+.termstat .w{color:var(--bone)}
+.termstat .spark{color:var(--medusa);letter-spacing:1px;margin-left:10px}
+.termrule{border:0;border-top:1px solid var(--border);margin:14px 0 6px}
+.termbody{height:392px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;gap:14px}
+.tl{opacity:0;transform:translateY(6px);animation:termin .35s ease-out forwards;color:var(--bone)}
+.tl .h{display:flex;align-items:baseline;gap:0;white-space:nowrap;overflow:hidden}
+.tl .mk{color:var(--medusa);width:20px;flex:none}
+.tl .t{color:var(--dim);width:82px;flex:none}
+.tl .sym{font-weight:500;width:110px;flex:none;color:var(--bone)}
+.tl.sell .sym{color:var(--sell)} .tl.buy .sym,.tl.flag .sym{color:var(--medusa)}
+.tl .ad{color:var(--dim);width:132px;flex:none}
+.tl .on{color:var(--ash);width:76px;flex:none}
+.tl .bar{width:118px;height:8px;flex:none;background:rgba(255,255,255,.06);position:relative;margin:0 14px 0 4px;align-self:center}
+.tl .bar i{position:absolute;left:0;top:0;bottom:0;background:var(--medusa)}
+.tl.sell .bar i{background:var(--sell)}
+.tl .pct{font-weight:500;color:var(--medusa);width:64px;flex:none}
+.tl.sell .pct{color:var(--sell)}
+.tl .s{color:var(--ash);padding-left:20px;font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tl .s .g{color:var(--dim)}
+.tl .s .f{color:var(--medusa)}
+.tl .s .r{color:var(--sell)}
+@keyframes termin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+/* an entry is typed, not dropped: the symbol arrives a character at a time behind a cursor,
+   then the rest of the row, then the two detail lines - the bar fills from zero */
+.tl .pend{opacity:0}
+.tl .ad,.tl .on,.tl .pct,.tl .s{transition:opacity .28s ease-out}
+.tl .bar{transition:opacity .28s ease-out}
+.tl .bar i{width:0;transition:width .55s cubic-bezier(.2,.8,.2,1)}
+.tl .sym.typing::after{content:"▍";color:var(--medusa);animation:caret .7s steps(1) infinite}
+.tl.sell .sym.typing::after{color:var(--sell)}
+@keyframes caret{50%{opacity:0}}
+/* a runner flagged live gets one gold flash, then settles */
+.tl.flag{animation:termin .35s ease-out forwards,goldflash 1.6s ease-out}
+@keyframes goldflash{0%{background:transparent}12%{background:rgba(93,183,232,.22);box-shadow:0 0 0 6px rgba(93,183,232,.22)}100%{background:transparent;box-shadow:0 0 0 6px transparent}}
+/* the status dot pulses: the watch is on */
+.termstat .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--medusa);margin-right:6px;
+  vertical-align:1px;animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(93,183,232,.55)}60%{box-shadow:0 0 0 6px rgba(93,183,232,0)}}
+/* what she is reading right now, under the tape */
+.termscan{margin-top:14px;color:var(--dim);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:19px}
+.termscan .sp{color:var(--medusa);display:inline-block;width:14px}
+.termscan .w{color:var(--ash)}
+@media (prefers-reduced-motion:reduce){
+  .tl,.tl.flag,.termlogo,.termstat .dot,.tl .sym.typing::after{animation:none}
+  .tl .pend{opacity:1} .tl .bar i{transition:none}
+}
+.termfoot{padding:12px 24px 14px;border-top:1px solid var(--border);color:var(--dim);font-size:11px;line-height:1.7}
+.termfoot b{color:var(--bone);font-weight:500}
+@media (max-width:760px){
+  .termbody{height:360px}
+  .tl .ad,.tl .on{display:none}
+  .termlogo{font-size:7px}
+}
+
+/* verdict: a panel like the last-hour tape, not bare rows floating on black */
+.conv{position:relative;margin-top:8px;border:1px solid var(--border);background:var(--void);
+  box-shadow:0 40px 80px -40px rgba(0,0,0,.9),inset 0 0 60px rgba(255,255,255,.015)}
+.convhead{display:flex;align-items:center;gap:20px;padding:15px 22px;
+  font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);
+  border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)}
+.conv ol{list-style:none;margin:0;padding:0}
+.conv li{display:grid;grid-template-columns:110px 122px minmax(0,1fr) 84px;align-items:center;gap:20px;
+  padding:15px 22px;border-top:1px solid rgba(255,255,255,.07);transition:background .25s,box-shadow .25s;cursor:pointer}
+.conv li:hover{background:rgba(255,255,255,.035)}
+/* the one row MEDUSA is actively flagging - everything else on the board stays quiet */
+.conv li.runner{background:linear-gradient(90deg,rgba(93,183,232,.05),rgba(93,183,232,.01) 70%);
+  box-shadow:inset 3px 0 0 var(--medusa),0 0 12px rgba(93,183,232,.08)}
+.conv li.runner:hover{background:linear-gradient(90deg,rgba(93,183,232,.08),rgba(93,183,232,.015) 70%)}
+/* more info, folded under the row - same pattern as the fills table in section 02 */
+.convDetail{display:none;grid-column:1/-1;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px 20px;
+  margin-top:6px;padding-top:14px;border-top:1px dashed rgba(255,255,255,.12)}
+.conv li.open .convDetail{display:grid}
+.convDetail .k{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.convDetail .v{font-size:13px;color:var(--mist);margin-top:5px}
+@media (max-width:680px){ .convDetail{grid-template-columns:repeat(1,minmax(0,1fr))} }
+.conv .tk{font-size:15px;letter-spacing:.01em;text-transform:uppercase}
+.conv .tk a{color:inherit;text-decoration:none}
+.conv .tk a:hover{text-decoration:underline}
+.conv .tag{justify-self:start;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  padding:4px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.18);color:var(--dim)}
+/* Lime is a flag, not a palette: only the classification MEDUSA is actively surfacing
+   (a runner) gets it. Everything else is a plain, quiet badge - white or gray text on
+   the default border, same as any other card. */
+.conv .tag.confirmed{color:var(--ash);border-color:var(--border)}
+.conv .tag.contradicted{color:var(--ash);border-color:var(--border)}
+.conv .tag.chainonly{color:var(--ash);border-color:var(--border)}
+.conv .tag.socialonly{color:var(--ash);border-color:var(--border)}
+.conv .tag.runner{color:var(--medusa);border-color:rgba(93,183,232,.5);background:rgba(93,183,232,.1);
+  text-shadow:0 0 12px rgba(93,183,232,.08);animation:pp 2.2s ease-in-out infinite}
+.conv .nolabel{font-family:var(--mono);font-size:11px;color:var(--dim);flex:1}
+.conv .track2.nodata{background:repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 4px,transparent 4px 8px)}
+.conv .dual{display:flex;flex-direction:column;gap:6px}
+.conv .seg{display:flex;align-items:center;gap:10px}
+.conv .seg span{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);width:40px;flex:none}
+.conv .track2{position:relative;height:3px;flex:1;background:rgba(255,255,255,.07);border-radius:3px;overflow:visible}
+.conv .track2::after{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:rgba(255,255,255,.18)}
+.conv .track2 i{position:absolute;top:0;bottom:0;border-radius:3px}
+.conv .score{font-family:var(--mono);font-size:21px;font-weight:500;text-align:right;font-variant-numeric:tabular-nums}
+/* the score is money+words combined - still a market-direction number, not a MEDUSA
+   opinion, so it reads in the same green/red as everything else that has a direction */
+.conv .score.up{color:var(--buy);text-shadow:0 0 8px rgba(93,183,232,.06)}
+.conv .score.down{color:var(--sell);text-shadow:0 0 8px rgba(154,168,184,.06)}
+@media (max-width:680px){
+  .conv li{grid-template-columns:1fr auto;row-gap:10px}
+  .conv .dual{grid-column:1/-1}
+}
+
+/* terminal tape: a screen within the page, not another list */
+.fills{position:relative;border:1px solid var(--border);background:var(--void);
+  box-shadow:0 40px 80px -40px rgba(0,0,0,.9),inset 0 0 60px rgba(255,255,255,.015);overflow:hidden}
+.fills::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:2;opacity:.5;
+  background:repeating-linear-gradient(180deg,rgba(255,255,255,.05) 0px,rgba(255,255,255,.05) 1px,transparent 1px,transparent 3px)}
+.fills::after{content:"";position:absolute;left:0;right:0;height:160px;pointer-events:none;z-index:2;top:-160px;
+  background:linear-gradient(180deg,transparent,rgba(255,255,255,.06),transparent);
+  animation:tape-scan 6s linear infinite}
+@keyframes tape-scan{0%{top:-160px}70%{top:100%}100%{top:100%}}
+.fillhead{position:relative;z-index:1;display:flex;align-items:center;gap:20px;padding:15px 22px;
+  font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);
+  border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)}
+.fillhead .livetag{display:inline-flex;align-items:center;gap:8px;color:var(--medusa);flex:none}
+.fillhead .r{margin-left:auto}
+.fills ol{position:relative;z-index:1;list-style:none;margin:0;padding:0;font-family:var(--mono)}
+.fills li{display:grid;grid-template-columns:38px 112px minmax(60px,1fr) 120px 190px;align-items:center;gap:18px;
+  padding:15px 22px;border-top:1px solid rgba(255,255,255,.07);transition:background .25s;cursor:pointer}
+.fills li:hover{background:rgba(255,255,255,.035)}
+.fills .idx{font-size:11px;color:var(--dim)}
+.fills .amtSub{display:block;font-size:11px;letter-spacing:.02em;color:var(--ash);font-weight:400;margin-top:2px}
+/* more info, folded under the row - a plain <li> click target, no redesign of the row itself */
+.fillDetail{display:none;grid-column:1/-1;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px 20px;
+  margin-top:6px;padding-top:14px;border-top:1px dashed rgba(255,255,255,.12)}
+.fillRow.open .fillDetail{display:grid}
+/* a row the last chain read did not have: slides in and glows once, then is just a row */
+.fillRow.fresh{animation:rowin .7s cubic-bezier(.2,.8,.2,1),rowglow 2.4s ease-out}
+@keyframes rowin{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
+@keyframes rowglow{0%,20%{background:rgba(93,183,232,.12);box-shadow:inset 3px 0 0 var(--medusa)}100%{background:transparent;box-shadow:inset 3px 0 0 transparent}}
+.fills .amt .n,.hourline .n{font-variant-numeric:tabular-nums}
+.fillDetail .k{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.fillDetail .v{font-size:13px;color:var(--mist);margin-top:5px}
+@media (max-width:620px){ .fillDetail{grid-template-columns:repeat(2,minmax(0,1fr))} }
+.fills .tk{font-size:15px;letter-spacing:.02em;text-transform:uppercase;color:var(--bone);display:flex;align-items:center;gap:9px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fills .tk .ar{font-size:11px;flex:none}
+.fills .tk.buy .ar{color:var(--buy)} .fills .tk.sell .ar{color:var(--sell)}
+.fills .tk a{color:inherit;text-decoration:none}
+.fills .tk a:hover{text-decoration:underline}
+/* the size of the ticket against the biggest one on the board - fills the row instead of dead air */
+.fills .bar{position:relative;height:3px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden}
+.fills .bar i{position:absolute;inset:0 auto 0 0;border-radius:3px;width:0;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+.fills .bar i.buy{background:linear-gradient(90deg,rgba(93,183,232,.35),var(--buy))}
+.fills .bar i.sell{background:linear-gradient(90deg,rgba(154,168,184,.35),var(--sell))}
+.fills .amt{font-size:20px;font-weight:500;letter-spacing:-.01em;font-variant-numeric:tabular-nums;text-align:right}
+.fills .amt.buy{color:var(--buy);text-shadow:0 0 8px rgba(93,183,232,.06)}
+.fills .amt.sell{color:var(--sell);text-shadow:0 0 8px rgba(154,168,184,.06)}
+.fills .links{display:flex;gap:16px;justify-content:flex-end;font-size:11px;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.fills .links a{color:var(--dim);text-decoration:none}
+.fills .links a:hover{color:var(--bone)}
+.fills .empty{position:relative;z-index:1;color:var(--dim);font-size:13px;font-family:var(--mono);padding:22px}
+@media (max-width:620px){
+  .fillhead .r{display:none}
+  .fills li{grid-template-columns:28px minmax(0,1fr) auto;row-gap:10px}
+  .fills .bar{display:none}
+  .fills .links{grid-column:1/-1;justify-content:flex-start;white-space:normal}
+}
+
+footer{padding:100px 32px 60px;display:flex;justify-content:flex-end;text-align:right;gap:20px;flex-wrap:wrap;color:var(--dim);font-size:13px}
+.proto{border:1px solid var(--border);border-radius:999px;padding:4px 12px;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+
+@media (max-width:900px){
+  .links{display:none}
+  .burger{display:block}
+  .tw{width:280px}
+  .summary{grid-template-columns:1fr}
+  .burger{margin-left:auto}
+  .hero{height:auto;max-height:none;padding-bottom:40px}
+  .heroCopy{padding-top:460px}
+  .legend{display:none}
+  /* 1fr is minmax(auto,1fr): a row of unshrinkable chips would push the whole page wider */
+  .head{grid-template-columns:minmax(0,1fr)}
+  .head p{justify-self:start}
+  .stats{gap:26px}
+}
+@media (max-width:520px){
+  .wrap{padding-left:18px;padding-right:18px}
+  /* nav: a slimmer bar, a smaller pill */
+  .nav{padding:14px 0}
+  /* hero: the copy starts below the bell and sits on its own dark ground, so the
+     tentacles never run through the headline */
+  .heroCopy{padding-top:96px}
+  .heroCopy::before{content:"";position:absolute;left:-18px;right:-18px;top:150px;bottom:-40px;z-index:-1;
+    background:linear-gradient(180deg,transparent 0,var(--void) 130px)}
+  h1{font-size:8.6vw;line-height:.96;max-width:56%}   /* a narrow column beside the bell: two words a line */
+  .lede{font-size:16px}
+  .verdict{font-size:18px;margin-top:22px;min-height:0}
+  .feed{flex-direction:column;align-items:stretch;margin-top:22px}
+  .stats{gap:18px;margin-top:28px}
+  .stats b{font-size:20px}
+  .stats span{font-size:11px}
+  /* sections: tighter rhythm, one idea per screen */
+  section.block{padding:56px 0 8px}
+  .rule{margin-bottom:26px;gap:12px}
+  .rule h3{white-space:nowrap}
+  .rule .r{white-space:nowrap}
+  .head{gap:18px;margin-bottom:30px}
+  .head p{font-size:16px}
+  h2{font-size:clamp(34px,12vw,56px)}
+  .hourline{font-size:18px;margin-bottom:24px}
+  /* summary: three slim rows, label left, value right */
+  .summary{border-radius:14px;margin-bottom:20px}
+  .summary>div{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:12px 16px}
+  .summary .v{font-size:15px;margin-top:0;text-align:right}
+  .tw{width:min(300px,82vw)}
+  /* fills: the row is symbol + amount, links underneath */
+  .fills li{padding:14px 16px;gap:12px}
+  .fills .idx{display:none}
+  .fills li{grid-template-columns:minmax(0,1fr) auto}
+  .fills .amt{font-size:18px}
+  .fills .links{font-size:11px;gap:14px}
+  .fillhead{padding:12px 16px;gap:14px}
+  /* verdicts: name · tag · score on one line, the two bars under it */
+  .conv li{grid-template-columns:minmax(0,1fr) auto auto;column-gap:12px;row-gap:12px;padding:14px 16px}
+  .conv .tk{grid-column:1;grid-row:1}
+  .conv .tag{grid-column:2;grid-row:1;font-size:10px;padding:3px 8px}
+  .conv .score{grid-column:3;grid-row:1;font-size:19px}
+  .conv .dual{grid-column:1/-1;grid-row:2}
+  .conv .convDetail{grid-row:3}
+  .convhead{padding:12px 16px;gap:14px}
+  /* the console: narrower columns, same rows */
+  .termbar{padding:10px 14px}
+  .termscreen{padding:16px 14px 12px}
+  .termlogo{font-size:6px}
+  .termstat .sep{padding:0 6px}
+  .termbody{height:340px;gap:12px}
+  .tl .t{width:70px}
+  .tl .sym{width:88px}
+  .tl .bar{width:64px;margin:0 10px 0 0}
+  .tl .pct{width:52px}
+  .termfoot{padding:10px 14px 12px}
+  footer{padding:56px 18px 40px}
+}
+@media (prefers-reduced-motion:reduce){
+  .reveal{opacity:1;transform:none;transition:none}
+  .pill.cta{animation:none}
+}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap navInner">
+    <a class="brand" href="#top"><span class="glyph"></span>MEDUSA</a>
+    <nav class="links">
+      <a href="#daily">Daily read</a><a href="#tops">On-chain</a><a href="#verdict-section">The verdict</a><a href="#console-section">The tape</a><a href="/api/">API</a>
+    </nav>
+    <div class="social">
+      <a class="soc" href="https://x.com/0x_fokki" target="_blank" rel="noopener" aria-label="MEDUSA on X" title="MEDUSA on X">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.9 2H22l-7.2 8.3L23 22h-6.6l-5.2-6.8L5.3 22H2.1l7.7-8.8L1.7 2h6.8l4.7 6.2L18.9 2zm-1.2 18h1.8L7.4 3.9H5.5L17.7 20z"/></svg>
+      </a>
+      <a class="soc soon" href="#" aria-disabled="true" title="GitHub · coming soon" aria-label="GitHub, coming soon" onclick="return false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.9 10.9c.6.1.8-.2.8-.5v-2c-3.2.7-3.9-1.4-3.9-1.4-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.4 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.2c0 .3.2.6.8.5A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+        <i class="hint">soon</i>
+      </a>
+    </div>
+    <button class="burger" id="burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="sheet"><i></i><i></i></button>
+  </div>
+</header>
+<!-- the phone menu: the same four sections and the same button, as a sheet over the page -->
+<div class="sheet" id="sheet" aria-hidden="true">
+  <nav class="sheetLinks">
+    <a class="item" href="#daily"><small>01</small>Daily read</a>
+    <a class="item" href="#tops"><small>02</small>On-chain</a>
+    <a class="item" href="#verdict-section"><small>03</small>The verdict</a>
+    <a class="item" href="#console-section"><small>04</small>The tape</a>
+    <a class="item" href="/api/"><small>05</small>API</a>
+  </nav>
+  <a class="pill" href="#top" id="sheetFeed">Ask MEDUSA</a>
+  <div class="sheetSocial">
+    <a class="soc" href="https://x.com/0x_fokki" target="_blank" rel="noopener" aria-label="MEDUSA on X"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.9 2H22l-7.2 8.3L23 22h-6.6l-5.2-6.8L5.3 22H2.1l7.7-8.8L1.7 2h6.8l4.7 6.2L18.9 2zm-1.2 18h1.8L7.4 3.9H5.5L17.7 20z"/></svg><span>@0x_fokki</span></a>
+    <a class="soc soon" href="#" aria-disabled="true" onclick="return false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.9 10.9c.6.1.8-.2.8-.5v-2c-3.2.7-3.9-1.4-3.9-1.4-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.4 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.2c0 .3.2.6.8.5A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg><span>GitHub · soon</span></a>
+  </div>
+  <div class="sheetFoot mono">reads what retail says against what it trades on <span data-c="name">Arc</span></div>
+</div>
+
+<section class="hero" id="top">
+  <canvas id="mind" aria-label="MEDUSA, a jellyfish made of retail thoughts and on-chain trades"></canvas>
+  <div class="tip" id="tip" hidden></div>
+  <div class="wrap">
+    <div class="heroCopy">
+      <div class="eyebrow mono"><span class="live"></span>AI agent · <span data-c="name">Arc</span></div>
+      <h1>Retail says one thing.<br><span class="soft">Money says another.</span></h1>
+      <p class="lede">MEDUSA is an AI lie detector for retail. She compares what the crowd says with what it
+        actually trades on-chain - exposing the gap between conviction and money.</p>
+      <p class="verdict" id="verdict">&nbsp;</p>
+      <form class="feed" id="feed" autocomplete="off">
+        <input id="thought" maxlength="140" placeholder="What do you think happens next?" aria-label="Your thought">
+        <button class="pill cta" type="submit">Ask MEDUSA</button>
+      </form>
+      <p class="feedmsg" id="feedmsg"></p>
+      <div class="card" id="card" hidden></div>
+      <div class="stats">
+        <div><b id="sNeurons">—</b><span>statements taken</span></div>
+        <div><b id="sTrades">—</b><span>trades read on chain · 24h</span></div>
+        <div><b id="sState">fed</b><span>reading</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="block" id="daily">
+  <div class="wrap">
+    <div class="rule reveal"><span class="num">01</span><h3>Daily read</h3><span class="r liveNote"><span class="live"></span>pulling live data</span></div>
+    <div class="head reveal">
+      <div><h2>The loudest<br>calls</h2></div>
+      <p>Every day, MEDUSA reads what retail is saying about anything trading on <span data-c="name">Arc</span> -
+        bitcoin, tokenized stocks, its own memecoins - and surfaces the six loudest accounts. Just
+        words, ranked by reach. Whether the money agrees is a different question - that's The
+        verdict, below.</p>
+    </div>
+    <div class="reveal">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px;flex-wrap:wrap">
+        <div class="mono">Loudest today · ranked by followers</div>
+      </div>
+      <div class="summary" id="summary"></div>
+      <div class="tweetsViewport"><div class="tweets" id="tweets"></div></div>
+      <div class="sample" id="sampleNote">Reading today's loudest calls about <span data-c="name">Arc</span> on <span data-c="social">X</span>.</div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="tops">
+  <div class="wrap">
+    <div class="rule reveal"><span class="num">02</span><h3>On-chain read</h3></div>
+    <div class="head reveal">
+      <div><h2>What retail<br>is doing now</h2></div>
+      <p>MEDUSA watches retail money move on-chain in real time. Every buy. Every sell.
+        No opinions - just what actually happened.</p>
+    </div>
+    <p class="hourline reveal" id="hourLine">&nbsp;</p>
+    <div class="fills reveal">
+      <div class="fillhead"><span class="livetag"><span class="live"></span>Live</span><span>Unusually large buys</span><span class="r">Every trade traceable on-chain</span></div>
+      <ol id="fillList"></ol>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="verdict-section">
+  <div class="wrap">
+    <div class="rule reveal"><span class="num">03</span><h3>The verdict</h3><span class="r liveNote"><span class="live"></span>pulling live data</span></div>
+    <div class="head reveal">
+      <div><h2>Words vs money,<br>token by token</h2></div>
+      <p>MEDUSA compares what retail says with what retail actually does on-chain. When words
+        and money agree, she confirms it. When they don't, she exposes the gap.</p>
+    </div>
+    <div class="formula reveal">
+      <div class="fbox">
+        <div class="flbl">money</div>
+        <div class="ffrac"><span class="fnum">buyers − sellers</span><span class="fden">wallets</span></div>
+        <div class="fnote">≥3 wallets to count</div>
+      </div>
+      <div class="fop">+</div>
+      <div class="fbox">
+        <div class="flbl">words</div>
+        <div class="ffrac"><span class="fnum">bull − bear</span><span class="fden">tagged posts</span></div>
+        <div class="fnote">≥2 posts to count</div>
+      </div>
+      <div class="fop">÷2 →</div>
+      <div class="fbox fresult">
+        <div class="flbl">medusa verdict</div>
+        <div class="frange">−100 <span>···</span> +100</div>
+        <div class="fnote">CONFIRMED · CONTRADICTED · CHAIN ONLY · RUNNER WATCH</div>
+      </div>
+    </div>
+    <p class="hourline reveal" id="verdictLine">&nbsp;</p>
+    <div class="conv reveal">
+      <div class="convhead"><span class="livetag"><span class="live"></span>Live</span><span>Medusa verdicts</span></div>
+      <ol id="convList"></ol>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="console-section">
+  <div class="wrap">
+    <div class="rule reveal"><span class="num">04</span><h3>The tape</h3><span class="r" id="consoleAge">—</span></div>
+    <div class="head reveal">
+      <div><h2>Watch MEDUSA<br>think</h2></div>
+      <p>MEDUSA doesn't just give you the result. Every read leaves a trail - what she saw,
+        what changed, and why she flagged it. Follow the agent's reads as they happen.</p>
+    </div>
+    <div class="term reveal">
+      <div class="termbar"><i></i><i></i><i></i><span class="cmd">npm run watch</span><button type="button" id="termCopy">copy</button></div>
+      <div class="termscreen">
+        <pre class="termlogo" id="termLogo" aria-label="MEDUSA"></pre>
+        <div class="termtag">reads what retail says against what it actually trades on <span data-c="name">Arc</span></div>
+        <div class="termstat"><b><i class="dot"></i>medusa watch</b><span class="sep">·</span><span data-c="slug">arc</span><span class="sep">·</span>chain <span data-c="id">5042</span><span class="sep">·</span><span class="ok">READ ONLY</span><span class="sep">·</span>no signer<span class="sep">·</span><span class="w">replay</span></div>
+        <div class="termstat"><span class="w" id="tClock">--:--:--</span><span class="sep">·</span><span>verdicts&nbsp;<span class="w" id="tVerd">—</span></span><span class="sep">·</span><span>block&nbsp;<span class="w" id="tBlock">—</span></span><span class="sep">·</span><span>up&nbsp;<span class="w" id="tUp">0s</span></span><span class="spark" id="tSpark"></span></div>
+        <hr class="termrule">
+        <div class="termbody" id="termBody"></div>
+        <div class="termscan" id="termScan"></div>
+      </div>
+      <div class="termfoot" id="termFoot">record - · recompute it yourself: npm run pull</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>MEDUSA · <span data-c="indep">independent of Circle. Arc is used as a public network.</span></span>
+</footer>
+
+<script src="daily-data.js"></script>
+<script src="chain-data.js"></script>
+<script src="chain-live.js"></script>
+<script>
+(() => {
+"use strict";
+
+/* ================= rng & helpers ================= */
+function mulberry(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a);
+  t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+const R = mulberry(911);
+const ri = (a,b) => Math.floor(a+R()*(b-a+1));
+const pick = a => a[Math.floor(R()*a.length)];
+const clamp = (v,a,b) => v<a?a:v>b?b:v;
+const $ = id => document.getElementById(id);
+const PHONE = matchMedia("(max-width: 519px)");          // a phone-width viewport; checked live, so rotating counts
+const STATEMENTS_BASE = 1000;                                  // shown on top of the server count
+const fmt = n => Math.round(n).toLocaleString("en-US");
+const esc = s => s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ease = t => t<.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2;
+const easeOut = t => 1-Math.pow(1-t,3);
+
+/* ================= vocabulary ================= */
+const EMOS = ["GREED","FEAR","FOMO","HOPIUM","COPE"];
+// Each emotion lives in a lobe. Fear sits in the temporal lobe, where the amygdala is.
+const EMO = {
+  GREED:  { rgb:[93,183,232],  lobe:0, val: 1.0, lobeName:"crown" },
+  FOMO:   { rgb:[74,145,188],  lobe:1, val: 0.6, lobeName:"upper bell" },
+  FEAR:   { rgb:[200,215,230],  lobe:2, val:-1.0, lobeName:"midbell" },
+  HOPIUM: { rgb:[238,242,247], lobe:3, val: 0.4, lobeName:"lower bell" },
+  COPE:   { rgb:[143,160,180],  lobe:4, val:-0.4, lobeName:"rim" }
+};
+const LOBE_EMO = ["GREED","FOMO","FEAR","HOPIUM","COPE",null];
+const col = e => "var(--bone)";                                   // interface: words stay white, only money is coloured
+const art = e => "rgb("+EMO[e].rgb.join(",")+")";                  // brain: the emotion's own colour
+const rgbs = e => EMO[e].rgb.join(",");
+
+// The board is the ten biggest tokens on the chain, by market cap, as the chain stood
+// at the last pull. Not a list anyone chose - whatever retail has actually bid up.
+const CHAIN = (window.CHAIN_READ || {tokens:[]}).tokens;
+const TOK = {}; CHAIN.forEach(t => TOK[t.symbol] = t);
+const TICKERS = CHAIN.map(t => t.symbol);
+// How the money moved over the last day: real, counted from trades on the chain.
+const netOf = t => { const n=t.buys+t.sells; return n ? clamp((t.buys-t.sells)/n*2.2, -1, 1) : 0; };
+// Which token a spark is likely to be about - weighted by real 24h volume, so the brain
+// flickers hardest where the chain is busiest.
+const TRADE_W = {}; CHAIN.forEach(t => TRADE_W[t.symbol] = Math.max(1, Math.sqrt(t.vol24h)/300));
+
+// The board changes with the chain, so the sample chatter is built from whatever is on it -
+// the same five feelings, wearing today's tickers. These light the brain; they never touch a
+// bar or a counter.
+const LINES = {
+  GREED:  ["$T to the moon, not selling a single one", "just market bought more $T, send it",
+           "leveraging my rent into $T, see you at the top", "$T is printing and so am i",
+           "loading $T before everyone wakes up"],
+  FEAR:   ["$T is going to zero lol", "this $T chart looks exactly like the last one that died",
+           "$T is a bubble and i'm the only one who sees it", "$T volume is dying, not a good sign",
+           "getting out of $T while there's still a bid"],
+  FOMO:   ["everyone i know is up on $T except me", "missed $T at half this, buying anyway because i hate myself",
+           "watched $T run all week from the sidelines", "if i don't buy $T now i'll regret it forever"],
+  HOPIUM: ["$T will recover by friday, trust", "$T to new highs once people find it",
+           "$T is the only honest token on this chain", "$T is just resting before the next leg"],
+  COPE:   ["$T is a community now, price doesn't matter", "i'm not selling $T, i'm just holding differently",
+           "zooming out on $T until the chart looks green"]
+};
+const NO_TICKER = [
+  ["buying every dip like it owes me money","GREED"], ["sold everything, sleeping better already","FEAR"],
+  ["feels like the top. everyone is too happy","FEAR"], ["i can't look at my portfolio anymore","FEAR"],
+  ["how is my barber richer than me","FOMO"], ["ok fine i'm aping in, don't judge me","FOMO"],
+  ["this is the bottom, i can feel it","HOPIUM"], ["my bags will be worth something one day","HOPIUM"],
+  ["down 40% but it's long term so it's fine","COPE"], ["unrealized losses aren't real","COPE"],
+  ["i'm a value investor now (i'm stuck)","COPE"]
+];
+const THOUGHTS = [
+  ...NO_TICKER.map(([text, emo]) => [text, emo, null]),
+  ...TICKERS.flatMap(tk => Object.entries(LINES).flatMap(([emo, lines]) =>
+    lines.map(l => [l.replace("$T", tk), emo, tk])))
+];
+
+/* ================= state ================= */
+const S = { neurons:0, tradesToday:0, recentEmo:[], mood:{}, flow:{}, tickEmo:{},
+            thoughtsFeed:[], tradesFeed:[] };
+TICKERS.forEach(t => { S.mood[t]=0; S.flow[t]=0; S.tickEmo[t]={GREED:0,FEAR:0,FOMO:0,HOPIUM:0,COPE:0}; });
+
+// The money side is real and starts full: buys against sells over the last 24 hours on the
+// chain itself. The words side starts empty on purpose - nobody has said anything about most
+// of these tokens yet, and pretending otherwise is the one thing this page won't do.
+CHAIN.forEach(t => { S.flow[t.symbol] = netOf(t); });
+S.said = {};                                          // tokens somebody has actually spoken about
+
+/* ================= brain geometry ================= */
+// A jellyfish bell, sampled as a real 3D cap (not a shell) so it keeps its volume when it
+// turns. Five concentric bands, crown to rim, carry the five emotions - there is no
+// anatomy to fake here, so the bands are an honest, made-up convention, not a brain region.
+// The B.* field names below (X/Y/Z/L/T/O/A/NXn/NYn/NZn/byLobe/boost/boostBuy) are the
+// contract the rest of this file already speaks - proj(), drawBrain(), targetIn(), the
+// hover lookup and every effect in drawOverlays() work on them unchanged, so this function
+// is the only place that needs to know the body is a jellyfish and not a brain.
+const JELLY_A = 1, JELLY_B = .82, JELLY_THETA_MAX = Math.PI*.5;
+function buildJellyfish(N){
+  const g = mulberry(7);
+  const X=[],Y=[],Z=[],L=[],T=[],O=[],A=[],NX=[],NY=[],NZ=[];
+  const addPoint = (theta, ang) => {
+    const ridge = .72 + .28*Math.sin(ang*10 + theta*4);        // the ribbed texture
+    const shell = ridge*.22 + .78 + g()*(.94-(ridge*.22+.78)); // real radial depth, not a shell
+    const st=Math.sin(theta), ct=Math.cos(theta);
+    const ex=st*Math.cos(ang), ez=st*Math.sin(ang), ey=ct;     // +Y is up, matching proj()'s BY - y*scl
+    const x=ex*JELLY_A*shell, y=ey*JELLY_B*shell, z=ez*JELLY_A*shell;
+    const nl = Math.hypot(ex/JELLY_A, ey/JELLY_B, ez/JELLY_A) || 1;
+    X.push(x); Y.push(y); Z.push(z); NX.push(ex/JELLY_A/nl); NY.push(ey/JELLY_B/nl); NZ.push(ez/JELLY_A/nl);
+    L.push(Math.min(4, (theta/JELLY_THETA_MAX*5)|0));
+    T.push(.35+g()*.65); O.push((g()*4)|0); A.push(.62+.38*ridge);
+  };
+  let n=0, tries=0;
+  while(n < N && tries < N*3){
+    tries++;
+    const u=g(), ang=g()*Math.PI*2;
+    const theta = Math.pow(u,.58) * JELLY_THETA_MAX;          // denser near the rim
+    addPoint(theta, ang); n++;
+  }
+  const byLobe = [[],[],[],[],[],[]];
+  for(let i=0;i<n;i++) byLobe[L[i]].push(i);
+  return { n, X:Float32Array.from(X), Y:Float32Array.from(Y), Z:Float32Array.from(Z),
+           L:Uint8Array.from(L), T:Float32Array.from(T), O:Uint8Array.from(O), A:Float32Array.from(A), byLobe,
+           NXn:Float32Array.from(NX), NYn:Float32Array.from(NY), NZn:Float32Array.from(NZ),
+           boost:new Float32Array(n), boostBuy:new Uint8Array(n) };
+}
+const B = buildJellyfish(window.innerWidth < 700 ? 9000 : 22800);
+
+/* ================= tentacles: decorative, not part of B =================
+   Thoughts and trades never target these - they land on the bell (see targetIn/fireTrade)
+   - so the tentacles don't need to be indexable the way B is. They animate every frame
+   (a real wave), which B's static points don't, so they stay their own thing and are drawn
+   straight onto the visible canvas right after the bell. */
+const TENT=11, TENT_PTS=40, ORAL=4, ORAL_PTS=22;
+function makeStrand(count, pts, len, thick){
+  const g = mulberry(23), arr=[];
+  for(let i=0;i<count;i++){
+    const ang=(i/count)*Math.PI*2 + g()*.15, rim=.97+g()*.05, l=len*(.55+g()*.85);
+    arr.push({ ang, rim, len:l, ph:g()*Math.PI*2, freq:.7+g()*.75, thick:thick*(.6+g()*.8), pts:new Array(pts) });
+  }
+  return arr;
+}
+const tentacles = makeStrand(TENT, TENT_PTS, 2.2, 1);
+const orals = makeStrand(ORAL, ORAL_PTS, 1.15, 1.8);
+const TMAX = Math.max(TENT*TENT_PTS, ORAL*ORAL_PTS);
+const TX=new Float32Array(TMAX), TY=new Float32Array(TMAX), TG=new Float32Array(TMAX), TS=new Float32Array(TMAX);
+function projRaw(x,y,z){
+  const x1=x*cyw+z*syw, z1=-x*syw+z*cyw, y1=y*cpt-z1*spt, z2=y*spt+z1*cpt, f=CAM/(CAM-z2);
+  return { x: BX + x1*scl*f, y: BY - y1*scl*f, f };
+}
+function drawTentacles(t){
+  mctx.globalCompositeOperation = "lighter";
+  function drawStrand(list, coreColor, glowColor, wobbleAmp){
+    let n=0;
+    for(const s of list){
+      const rimX=Math.cos(s.ang)*s.rim, rimZ=Math.sin(s.ang)*s.rim;
+      // a surge is one bright packet running rim to tip: the tape just read something
+      const sg = s.surge ? (t*1000 - s.surge)/900 : 9;
+      for(let k=0;k<s.pts.length;k++){
+        const u=k/(s.pts.length-1), phase=u*s.freq*6.283+t*1.6+s.ph;
+        const curl = u>.7 ? (u-.7)/.3 : 0, freqBoost=1+curl*2.2, ampBoost=1-curl*.35;
+        const waveA=Math.sin(phase*freqBoost)*wobbleAmp*ampBoost*u*u;
+        const waveB=Math.sin(phase*freqBoost+1.5708)*wobbleAmp*.55*ampBoost*u*u;
+        const nx=rimX+Math.cos(s.ang+1.5708)*waveA+Math.cos(s.ang)*waveB;
+        const nz=rimZ+Math.sin(s.ang+1.5708)*waveA+Math.sin(s.ang)*waveB;
+        const ny=-s.len*u;
+        const p=projRaw(nx,ny,nz);
+        if(p.f>.35){
+          const pulseWave=Math.max(0,Math.sin(u*11-t*2.4+s.ph*3));
+          const surge = sg>=0 && sg<=1 ? Math.exp(-Math.pow((u-sg)*5,2))*2.8*(1-sg*.4) : 0;
+          const glow=Math.max(0,p.f-.35)/.65*(1-u*.7)*(1+pulseWave*pulseWave*1.6+surge);
+          TX[n]=p.x; TY[n]=p.y; TG[n]=glow; TS[n]=s.thick*(1.4-u*.9)*DPR; n++;
+        }
+      }
+    }
+    mctx.fillStyle=glowColor;
+    for(let i=0;i<n;i++){ mctx.globalAlpha=TG[i]*.16; mctx.beginPath(); mctx.arc(TX[i],TY[i],TS[i]*2.2,0,6.283); mctx.fill(); }
+    mctx.fillStyle=coreColor;
+    for(let i=0;i<n;i++){ mctx.globalAlpha=TG[i]*.8; mctx.beginPath(); mctx.arc(TX[i],TY[i],TS[i]*.65,0,6.283); mctx.fill(); }
+    mctx.globalAlpha=1;
+  }
+  drawStrand(tentacles, "rgb(210,245,255)", "rgb(140,210,255)", .3);
+  drawStrand(orals, "rgb(240,246,255)", "rgb(93,183,232)", .45);
+  mctx.globalCompositeOperation = "source-over";
+}
+
+/* ================= renderer ================= */
+const hero = document.querySelector(".hero");
+const mind = $("mind"), mctx = mind.getContext("2d");
+const bcan = document.createElement("canvas"), bctx = bcan.getContext("2d");
+let DPR=1, MW=0, MH=0, SZ=0, BX=0, BY=0, img=null, buf=null;
+let yaw=1.46, pitch=.46, dragging=false, lastPX=0, lastPY=0, idleSince=0;
+let beat=0, activity=0, arcAcc=0;
+const mouse = { x:-1e9, y:-1e9, inside:false };
+const heat = new Float32Array(6), heatT = new Float32Array(6), flash = new Float32Array(6);
+const neurons=[], sparks=[], flights=[], rings=[], bursts=[], arcs=[], floaters=[], dust=[], waves=[], callouts=[];
+const CAM = 3.2;
+const LX = -.48, LY = .62, LZ = .62;   // key light, upper left and toward the viewer
+
+const STAMP_S = [[[0,0],[1,0],[0,1]], [[0,0],[1,0],[1,1]], [[1,0],[0,1],[1,1]], [[0,0],[0,1],[1,1]]];
+const STAMP_L = [[[0,0],[1,0],[2,0],[0,1],[1,1],[0,2]], [[0,0],[1,0],[2,0],[1,1],[2,1],[2,2]],
+                 [[2,0],[1,1],[2,1],[0,2],[1,2],[2,2]], [[0,0],[0,1],[1,1],[0,2],[1,2],[2,2]]];
+
+function layout(){
+  DPR = Math.min(window.devicePixelRatio||1, 1.5);
+  const w = hero.clientWidth, h = hero.clientHeight;
+  MW = mind.width = Math.round(w*DPR); MH = mind.height = Math.round(h*DPR);
+  let size, cx, cy;
+  if(w < 520){ size = Math.min(w*.54, 260); cx = w*.74; cy = 172; }  // a phone: the bell sits beside the headline, just inside the edge
+  else if(w < 900){ size = Math.min(w*.94, 430); cx = w/2; cy = 250; }
+  else       { size = Math.min(h*.96, w*.56); cx = w*.69; cy = h*.5; }
+  SZ = Math.round(size*DPR); BX = Math.round(cx*DPR); BY = Math.round(cy*DPR);
+  bcan.width = bcan.height = SZ;
+  img = bctx.createImageData(SZ, SZ); buf = img.data;
+  dust.length = 0;
+  const g = mulberry(55), n = w < 900 ? 70 : 150;
+  for(let i=0;i<n;i++){
+    const e = g()<.22 ? EMOS[(g()*5)|0] : null;
+    dust.push({ x:g()*MW, y:g()*MH, r:(.6+g()*1.3)*DPR, v:(5+g()*14)*DPR, sw:g()*6.28,
+                c: e ? rgbs(e) : "190,196,214", a:.12+g()*.33 });
+  }
+}
+
+let cyw=1, syw=0, cpt=1, spt=0, scl=1;
+function setView(now){
+  cyw=Math.cos(yaw); syw=Math.sin(yaw); cpt=Math.cos(pitch); spt=Math.sin(pitch);
+  // propulsion: a fast contraction, a slower recovery. Each phase eases in and out with
+  // zero velocity at both ends, so phase-to-phase and the full-cycle wrap both land on a
+  // matching speed (not just a matching position) - no snap where the loop restarts.
+  const PFRAC = .28;
+  const cyc = (now/1000 % 3.1)/3.1;
+  let jPulse;
+  if(cyc < PFRAC){ const u=cyc/PFRAC; jPulse = 1 - .13*(1-Math.cos(u*Math.PI))/2; }
+  else { const u=(cyc-PFRAC)/(1-PFRAC); jPulse = .87 + .13*(1-Math.cos(u*Math.PI))/2; }
+  scl = SZ*.34*jPulse*(1 + Math.sin(now/1700)*.01 + beat*.022);   // plus the old breathing and impact heartbeat
+}
+function proj(i){
+  const x=B.X[i], y=B.Y[i], z=B.Z[i];
+  const x1 = x*cyw + z*syw, z1 = -x*syw + z*cyw;
+  const y1 = y*cpt - z1*spt, z2 = y*spt + z1*cpt;
+  const f = CAM/(CAM - z2);
+  return { x: BX + x1*scl*f, y: BY - y1*scl*f, z: z2, f };
+}
+
+function drawBrain(dt, now){
+  buf.fill(0);
+  // Ripples: a landed thought sends a ring of light across the surface. The front is a
+  // shell in 3D around the landing point, so it follows the folds rather than the screen.
+  const WX=[], WY=[], WZ=[], WR=[], WB=[], WF=[], WC=[];
+  for(let q=waves.length-1;q>=0;q--){
+    const w=waves[q], t=(now-w.born)/1000, life=w.big?1.8:1.2;
+    if(t>=life){ waves.splice(q,1); continue; }
+    WX.push(w.x); WY.push(w.y); WZ.push(w.z); WC.push(w.c);
+    const u=t/life, reach=w.big?.42:.26;
+    WR.push(reach*(1-Math.pow(1-u,3))); WB.push(w.big?.06:.045); WF.push((1-u)*(w.big?1.25:1));
+  }
+  const nw = WX.length;
+  const half = SZ/2, big = DPR >= 1.25;
+  const base = [150,158,182];
+  const decay = dt*1.4;
+  // the cursor parts the particles, like a hand through smoke
+  const lx = mouse.inside ? mouse.x-(BX-half) : -1e9, ly = mouse.inside ? mouse.y-(BY-half) : -1e9;
+  const MR = 52*DPR, MR2 = MR*MR, PUSH = 12*DPR;
+  for(let i=0;i<B.n;i++){
+    const x=B.X[i], y=B.Y[i], z=B.Z[i];
+    let wi=0, wc=null;
+    for(let q=0;q<nw;q++){
+      const ex=x-WX[q], ey=y-WY[q], ez=z-WZ[q];
+      const s=1-Math.abs(Math.sqrt(ex*ex+ey*ey+ez*ez)-WR[q])/WB[q];
+      if(s>0){ const v=s*s*WF[q]; if(v>wi){ wi=v; wc=WC[q]; } }
+    }
+    const x1 = x*cyw + z*syw, z1 = -x*syw + z*cyw;
+    const y1 = y*cpt - z1*spt, z2 = y*spt + z1*cpt;
+    const f = CAM/(CAM - z2), lift = 1 + wi*.035;
+    let fx = half + x1*scl*f*lift, fy = half - y1*scl*f*lift;
+    let mag = 0;
+    const dx = fx-lx, dy = fy-ly, d2 = dx*dx+dy*dy;
+    if(d2 < MR2){ const d=Math.sqrt(d2)+.001; mag=1-d/MR; mag*=mag; fx += dx/d*mag*PUSH; fy += dy/d*mag*PUSH; }
+    const px = fx|0, py = fy|0;
+    if(px<1 || py<1 || px>=SZ-3 || py>=SZ-3) continue;
+    const depth = clamp((z2+.9)/1.8, 0, 1);
+    // the body itself stays monochrome now - colour is reserved for the signals landing on
+    // it (flights, sparks, ripples), not for an ambient mood-tint across the whole bell
+    const l = B.L[i];
+    let r=base[0], g=base[1], b=base[2];
+    const nx=B.NXn[i], ny=B.NYn[i], nz=B.NZn[i];
+    const nx1 = nx*cyw + nz*syw, nz1 = -nx*syw + nz*cyw;
+    const ny1 = ny*cpt - nz1*spt, nz2 = ny*spt + nz1*cpt;
+    const rim = 1-Math.abs(nz2), rim2 = rim*rim, diff = Math.max(0, nx1*LX + ny1*LY + nz2*LZ);
+    const light = (.46 + .56*diff + .85*rim2) * B.A[i];
+    r += (225-r)*rim2*.22; g += (232-g)*rim2*.22; b += (255-b)*rim2*.22;
+    let k = (.3 + .7*depth*depth) * (.62 + flash[l]*.9) * (1 + mag*1.1) * light;
+    if(wi>0){ const w=Math.min(1,wi); r += (wc[0]-r)*w; g += (wc[1]-g)*w; b += (wc[2]-b)*w; k *= 1 + wi*2.4; }
+    const bo = B.boost[i];
+    if(bo > 0){
+      if(B.boostBuy[i]){ r += (93-r)*bo; g += (183-g)*bo; b += (232-b)*bo; }   // one signal colour
+      else             { r += (200-r)*bo; g += (215-g)*bo; b += (230-b)*bo; }   // a sell is silver, not red
+      k = Math.max(k, bo*1.5);
+      B.boost[i] = bo - decay;
+    }
+    r*=k; g*=k; b*=k;
+    const st = (big && depth > .3 ? STAMP_L : STAMP_S)[B.O[i]];
+    for(let s=0;s<st.length;s++){
+      const idx = ((py+st[s][1])*SZ + (px+st[s][0]))*4;
+      buf[idx]+=r; buf[idx+1]+=g; buf[idx+2]+=b; buf[idx+3]=255;
+    }
+  }
+  bctx.putImageData(img, 0, 0);
+  const ox = BX-half, oy = BY-half;
+  mctx.globalCompositeOperation = "lighter";
+  mctx.globalAlpha = .55 + beat*.25; mctx.filter = "blur("+(7*DPR)+"px)";
+  mctx.drawImage(bcan, ox, oy);
+  mctx.filter = "none"; mctx.globalAlpha = 1;
+  mctx.drawImage(bcan, ox, oy);
+}
+
+function glow(x, y, r, c, a){
+  const gr = mctx.createRadialGradient(x,y,0,x,y,r);
+  gr.addColorStop(0,"rgba("+c+","+a+")"); gr.addColorStop(.3,"rgba("+c+","+(a*.35)+")"); gr.addColorStop(1,"rgba("+c+",0)");
+  mctx.fillStyle = gr; mctx.fillRect(x-r,y-r,r*2,r*2);
+}
+function roundRect(c,x,y,w,h,r){
+  c.beginPath(); c.moveTo(x+r,y); c.lineTo(x+w-r,y); c.quadraticCurveTo(x+w,y,x+w,y+r);
+  c.lineTo(x+w,y+h-r); c.quadraticCurveTo(x+w,y+h,x+w-r,y+h); c.lineTo(x+r,y+h);
+  c.quadraticCurveTo(x,y+h,x,y+h-r); c.lineTo(x,y+r); c.quadraticCurveTo(x,y,x+r,y); c.closePath();
+}
+function flightPos(fl, t, e){
+  const q = ease(clamp(t,0,1)), u = 1-q;
+  return { x: u*u*fl.sx + 2*u*q*fl.cx(e) + q*q*e.x, y: u*u*fl.sy + 2*u*q*fl.cy(e) + q*q*e.y };
+}
+
+function drawOverlays(now, dt){
+  mctx.globalCompositeOperation = "lighter";
+
+  // ambient dust over the whole hero
+  for(const d of dust){
+    d.y -= d.v*dt*(1+activity*.6); d.x += Math.sin(now/1600+d.sw)*.18*DPR;
+    if(d.y < -8){ d.y = MH+8; d.x = Math.random()*MW; }
+    mctx.fillStyle = "rgba("+d.c+","+d.a+")"; mctx.fillRect(d.x, d.y, d.r, d.r);
+  }
+
+  // synapse arcs: signals travelling across the brain, more of them when it is busy
+  for(let i=arcs.length-1;i>=0;i--){
+    const a=arcs[i], t=(now-a.born)/a.dur;
+    if(t>=1){ arcs.splice(i,1); continue; }
+    const pa=proj(a.a), pb=proj(a.b);
+    if(pa.z<-.3 && pb.z<-.3) continue;
+    const mx=(pa.x+pb.x)/2, my=(pa.y+pb.y)/2, ox=mx-BX, oy=my-BY, ol=Math.hypot(ox,oy)||1;
+    const bulge=Math.hypot(pa.x-pb.x,pa.y-pb.y)*.35, cx=mx+ox/ol*bulge, cy=my+oy/ol*bulge;
+    const fadeA = Math.sin(t*Math.PI);
+    mctx.strokeStyle="rgba("+a.c+","+(.16*fadeA)+")"; mctx.lineWidth=1*DPR;
+    mctx.beginPath(); mctx.moveTo(pa.x,pa.y); mctx.quadraticCurveTo(cx,cy,pb.x,pb.y); mctx.stroke();
+    const q=ease(t), u=1-q, hx=u*u*pa.x+2*u*q*cx+q*q*pb.x, hy=u*u*pa.y+2*u*q*cy+q*q*pb.y;
+    glow(hx, hy, 9*DPR, a.c, .9*fadeA);
+  }
+
+  // trade sparks: double rings for big trades
+  for(let i=sparks.length-1;i>=0;i--){
+    const s=sparks[i], t=Math.max(0,(now-s.born)/1300);
+    if(t>1){ sparks.splice(i,1); continue; }
+    const p=proj(s.pi), c=s.buy?"93,183,232":"200,215,230";   // one signal colour; a sell is silver, not red
+    for(let k=0;k<1;k++){
+      const tt=clamp(t-k*.18,0,1), a=1-tt;
+      mctx.strokeStyle="rgba("+c+","+(a*.85)+")"; mctx.lineWidth=(1.6-k*.5)*DPR;
+      mctx.beginPath(); mctx.arc(p.x,p.y,(3+easeOut(tt)*28*s.k)*DPR*p.f,0,6.2832); mctx.stroke();
+    }
+    glow(p.x, p.y, 14*DPR*s.k, c, .9*(1-t));
+  }
+
+  // landed thoughts: readable neurons
+  for(const n of neurons){
+    const p=proj(n.pi), vis=clamp((p.z+.7)/1.4,.12,1);
+    const age=Math.max(0,(now-n.born)/1000), pulse = age<2.4 ? (2.4-age)/2.4 : 0;
+    const r=(1.8 + pulse*8 + (n.user?2.5:0))*DPR*p.f;
+    glow(p.x, p.y, r*4, "205,232,255", .95*vis);
+  }
+
+  // impact shockwaves
+  for(let i=rings.length-1;i>=0;i--){
+    const g=rings[i], t=(now-g.born)/(g.big?1300:900);
+    if(t>=1){ rings.splice(i,1); continue; }
+    const p=proj(g.pi), a=1-t;
+    mctx.strokeStyle="rgba("+g.c+","+(a*.9)+")"; mctx.lineWidth=(g.big?3:2)*DPR*a+.5;
+    mctx.beginPath(); mctx.arc(p.x,p.y,(4+easeOut(t)*(g.big?90:48))*DPR,0,6.2832); mctx.stroke();
+  }
+
+  // burst debris
+  for(let i=bursts.length-1;i>=0;i--){
+    const b=bursts[i]; b.life-=dt;
+    if(b.life<=0){ bursts.splice(i,1); continue; }
+    b.x+=b.vx*dt; b.y+=b.vy*dt; b.vx*=.93; b.vy*=.93; b.vy+=18*DPR*dt;
+    const a=b.life/b.max;
+    mctx.fillStyle="rgba("+b.c+","+a+")"; mctx.fillRect(b.x,b.y,b.s,b.s);
+  }
+
+  // thoughts in flight: glowing trail
+  for(let i=flights.length-1;i>=0;i--){
+    const fl=flights[i], t=(now-fl.t0)/fl.dur;
+    if(t>=1){ flights.splice(i,1); land(fl, now); continue; }
+    if(t<0) continue;
+    const e=proj(fl.pi);
+    for(let k=0;k<24;k++){
+      const tt=t-k*.012; if(tt<0) break;
+      const p=flightPos(fl, tt, e);
+      mctx.fillStyle="rgba("+rgbs(fl.emo)+","+((1-k/24)*.8)+")";
+      mctx.beginPath(); mctx.arc(p.x,p.y,(k===0?4:3*(1-k/24))*DPR*(fl.user?1.4:1),0,6.2832); mctx.fill();
+    }
+    const h=flightPos(fl, t, e);
+    glow(h.x, h.y, (fl.user?34:22)*DPR, rgbs(fl.emo), .9);
+  }
+
+  mctx.globalCompositeOperation = "source-over";
+
+  // the thought itself, as a pill with its text, shrinking as the brain pulls it in
+  mctx.textAlign="center"; mctx.textBaseline="middle";
+  for(const fl of flights){
+    const t=(now-fl.t0)/fl.dur; if(t<0 || t>=1) continue;
+    const e=proj(fl.pi), h=flightPos(fl, t, e);
+    const base = fl.user ? 1.3 : 1;
+    const sc = base*(1 - .66*ease(t));
+    const a = t>.82 ? (1-t)/.18 : Math.min(1, t/.07);
+    const fs = 13*DPR;
+    mctx.font = "400 "+fs+"px Inter, system-ui, sans-serif";
+    if(fl.w==null) fl.w = mctx.measureText(fl.label).width;
+    const w = fl.w + 26*DPR, hh = fs*2.2;
+    mctx.save(); mctx.translate(h.x, h.y - 26*DPR*sc); mctx.scale(sc, sc); mctx.globalAlpha = a;
+    roundRect(mctx, -w/2, -hh/2, w, hh, hh/2);
+    mctx.fillStyle="rgba(10,10,12,.82)"; mctx.fill();
+    mctx.lineWidth=1.2*DPR; mctx.strokeStyle="rgba("+rgbs(fl.emo)+",.9)"; mctx.stroke();
+    mctx.fillStyle="#fff"; mctx.fillText(fl.label, 0, 1*DPR);
+    mctx.restore();
+  }
+
+  // floating labels: trade sizes and the emotion a thought was filed under
+  for(let i=floaters.length-1;i>=0;i--){
+    const fl=floaters[i], t=(now-fl.born)/fl.dur;
+    if(t>=1){ floaters.splice(i,1); continue; }
+    const p=proj(fl.pi), a = t<.12 ? t/.12 : 1-(t-.12)/.88;
+    mctx.globalAlpha = clamp(a,0,1);
+    mctx.font = (fl.big?"600 ":"500 ")+((fl.big?16:12)*DPR)+"px 'DM Mono', monospace";
+    mctx.shadowColor = fl.color; mctx.shadowBlur = 12*DPR;
+    mctx.fillStyle = fl.color;
+    mctx.fillText(fl.text, p.x, p.y - (14 + easeOut(t)*(fl.big?80:54))*DPR);
+    mctx.shadowBlur = 0; mctx.globalAlpha = 1;
+  }
+
+  // runner call-out: a note pinned to a point on the bell with a leader line - an
+  // instrument annotation in the jellyfish's own scale, not a billboard over it
+  for(let i=callouts.length-1;i>=0;i--){
+    const c=callouts[i], t=(now-c.born)/c.dur;
+    if(t>=1){ callouts.splice(i,1); continue; }
+    const p=proj(c.pi), a = t<.1 ? t/.1 : t>.85 ? (1-t)/.15 : 1, grow = easeOut(Math.min(1, t/.2));
+    let dir = p.x < BX ? -1 : 1;                              // the note leans away from the bell
+    if(dir > 0 && p.x + 260*DPR > MW) dir = -1; if(dir < 0 && p.x - 260*DPR < 0) dir = 1;
+    const lx = p.x + dir*46*DPR*grow, ly = p.y - 42*DPR*grow, ex = lx + dir*18*DPR*grow;
+    mctx.globalAlpha = a; mctx.strokeStyle="rgba(93,183,232,.95)"; mctx.lineWidth=1*DPR;
+    mctx.beginPath(); mctx.arc(p.x,p.y,3.5*DPR,0,6.2832); mctx.stroke();
+    mctx.beginPath(); mctx.moveTo(p.x,p.y); mctx.lineTo(lx,ly); mctx.lineTo(ex,ly); mctx.stroke();
+    if(grow > .6){
+      mctx.globalAlpha = a*Math.min(1,(grow-.6)/.4);
+      mctx.textAlign = dir>0 ? "left" : "right"; mctx.textBaseline="alphabetic";
+      const x0 = ex + dir*8*DPR;
+      mctx.font="400 "+(10.5*DPR)+"px 'DM Mono', monospace";
+      const w = Math.max(150*DPR, mctx.measureText(c.why).width + 14*DPR);
+      mctx.fillStyle="rgba(3,8,18,.72)";
+      roundRect(mctx, dir>0 ? x0-6*DPR : x0-w+6*DPR, ly-18*DPR, w, 56*DPR, 4*DPR); mctx.fill();
+      mctx.letterSpacing = "0.18em";
+      mctx.font="500 "+(10.5*DPR)+"px 'DM Mono', monospace"; mctx.fillStyle="#72d4f4";
+      mctx.fillText("RUNNER WATCH", x0, ly-4*DPR);
+      mctx.letterSpacing = "0px";
+      mctx.font="500 "+(15*DPR)+"px 'DM Mono', monospace"; mctx.fillStyle="#e8edf4";
+      mctx.fillText("$"+c.sym, x0, ly+15*DPR);
+      mctx.font="400 "+(10.5*DPR)+"px 'DM Mono', monospace"; mctx.fillStyle="#8b9bb0";
+      mctx.fillText(c.why, x0, ly+31*DPR);
+    }
+    mctx.globalAlpha=1; mctx.textAlign="center"; mctx.textBaseline="middle";
+  }
+
+  // "your thought" marker on a freshly fed neuron
+  for(const n of neurons){
+    if(!n.user) continue;
+    const age=(now-n.born)/1000; if(age>12) continue;
+    const p=proj(n.pi), a = age>9 ? (12-age)/3 : 1;
+    mctx.globalAlpha=a; mctx.strokeStyle="rgba(255,255,255,.7)"; mctx.lineWidth=1*DPR;
+    mctx.beginPath(); mctx.moveTo(p.x, p.y+8*DPR); mctx.lineTo(p.x, p.y+34*DPR); mctx.stroke();
+    mctx.font="500 "+(12*DPR)+"px Inter, system-ui, sans-serif"; mctx.fillStyle="#fff";
+    mctx.fillText("your thought", p.x, p.y+46*DPR); mctx.globalAlpha=1;
+  }
+}
+
+/* ================= counters that roll instead of jump ================= */
+const shown = { n:0, t:0 };
+function tweenCounters(dt){
+  const k = Math.min(1, dt*5);
+  shown.n += (S.neurons-shown.n)*k; shown.t += (S.tradesToday-shown.t)*k;
+  // the statements figure is shown on top of a base of 1,000: the count the server keeps
+  // is what people actually fed in, and every new one still moves the number by one
+  $("sNeurons").textContent = fmt(shown.n + STATEMENTS_BASE); $("sTrades").textContent = fmt(shown.t);
+}
+function bump(id){ const el=$(id); el.classList.add("bump"); setTimeout(()=>el.classList.remove("bump"), 500); }
+
+let last = performance.now();
+function frame(){
+  requestAnimationFrame(frame);
+  // events stamp themselves with performance.now(); using the same clock here keeps
+  // new sparks from looking as if they were born in the future.
+  const now = performance.now();
+  const dt = Math.min(.05, (now-last)/1000); last = now;
+  if(!dragging && now-idleSince > 1200) yaw += dt*(.08 + activity*.02);
+  for(let l=0;l<6;l++){ heat[l] += (heatT[l]-heat[l])*Math.min(1,dt*1.3); flash[l] *= Math.pow(.18, dt); }
+  beat *= Math.pow(.02, dt); activity *= Math.pow(.55, dt);
+  arcAcc += dt*(1 + activity*3);
+  while(arcAcc > 1){ spawnArc(now); arcAcc -= 1; }
+  setView(now);
+  mctx.clearRect(0,0,MW,MH);
+  drawBrain(dt, now);
+  drawTentacles(now/1000);
+  drawOverlays(now, dt);
+  tweenCounters(dt);
+}
+
+function spawnArc(now){
+  const la=ri(0,4), lb=ri(0,4), A=B.byLobe[la], Bl=B.byLobe[lb];
+  if(!A.length || !Bl.length) return;
+  arcs.push({ a:A[(R()*A.length)|0], b:Bl[(R()*Bl.length)|0], born:now, dur:800+R()*800,
+              c: "205,232,255" });
+  if(arcs.length > 50) arcs.shift();
+}
+
+/* ================= interaction ================= */
+mind.addEventListener("pointerdown", e => { dragging=true; lastPX=e.clientX; lastPY=e.clientY; mind.classList.add("drag"); mind.setPointerCapture(e.pointerId); });
+mind.addEventListener("pointerup",   () => { dragging=false; idleSince=performance.now(); mind.classList.remove("drag"); });
+mind.addEventListener("pointermove", e => {
+  const rect=mind.getBoundingClientRect(), mx=(e.clientX-rect.left)*DPR, my=(e.clientY-rect.top)*DPR;
+  mouse.x=mx; mouse.y=my; mouse.inside=true;
+  if(dragging){
+    yaw += (e.clientX-lastPX)*.008; pitch = clamp(pitch+(e.clientY-lastPY)*.006, -.6, .8);
+    lastPX=e.clientX; lastPY=e.clientY; $("tip").hidden=true; return;
+  }
+  let best=null, bd=18*DPR;
+  for(const n of neurons){ const p=proj(n.pi); if(p.z<-.25) continue; const d=Math.hypot(p.x-mx,p.y-my); if(d<bd){ bd=d; best=n; } }
+  const tip=$("tip");
+  if(!best){ tip.hidden=true; return; }
+  tip.innerHTML = "“"+esc(best.text)+"”<small style='color:"+art(best.emo)+"'>"+best.emo+" · "+EMO[best.emo].lobeName+
+    (best.ticker?" · "+best.ticker:"")+"</small>";
+  tip.style.left=(e.clientX-rect.left)+"px"; tip.style.top=(e.clientY-rect.top)+"px"; tip.hidden=false;
+});
+mind.addEventListener("pointerleave", () => { $("tip").hidden=true; mouse.inside=false; });
+
+/* ================= the two inputs ================= */
+function recordThought(emo, ticker, text, user, live){
+  // counters are the server's; nothing here invents one
+  S.recentEmo.push(emo); if(S.recentEmo.length>60) S.recentEmo.shift();
+  // Only real thoughts move a coin's bar: the sample ones light the brain, but if they also
+  // nudged the mood they would wash today's actual posts out of the table within a minute.
+  if(live && ticker && S.tickEmo[ticker]){
+    S.said[ticker] = (S.said[ticker]||0) + 1;
+    S.mood[ticker] = S.mood[ticker]*.8 + EMO[emo].val*.2;
+    const te=S.tickEmo[ticker]; for(const k in te) te[k]*=.93; te[emo]+=1;
+  }
+  const share={}; EMOS.forEach(e=>share[e]=0); S.recentEmo.forEach(e=>share[e]++);
+  EMOS.forEach(e => { heatT[EMO[e].lobe] = clamp(.14 + (share[e]/Math.max(1,S.recentEmo.length))*2.3, 0, 1); });
+  S.thoughtsFeed.unshift({text, emo, ticker, user, live, at:Date.now()});
+  if(S.thoughtsFeed.length>7) S.thoughtsFeed.pop();
+}
+function recordTrade(tk, buy, usd){
+  // The sparks animate the brain; the bar they sit next to comes from the chain, so they
+  // are not allowed to move it.
+  S.tradesFeed.unshift({tk, buy, usd, at:Date.now()});
+  if(S.tradesFeed.length>9) S.tradesFeed.pop();
+}
+
+function pickThought(){ const t=pick(THOUGHTS); return {text:t[0], emo:t[1], ticker:t[2]}; }
+function pickTicker(){
+  let tot=0; for(const t of TICKERS) tot+=TRADE_W[t];
+  let r=R()*tot; for(const t of TICKERS){ r-=TRADE_W[t]; if(r<=0) return t; } return TICKERS[0];
+}
+function makeTrade(){
+  const tk=pickTicker(), buy = R() < .5 + (S.flow[tk]||0)*.5;   // sparks lean the way the chain leans
+  const usd = Math.round(Math.exp(5.3 + R()*5.1));
+  return {tk, buy, usd};
+}
+function targetIn(emo){ const arr=B.byLobe[EMO[emo].lobe]; return arr[(R()*arr.length)|0]; }
+
+function land(fl, now){
+  neurons.push({pi:fl.pi, emo:fl.emo, text:fl.text, ticker:fl.ticker, born:now, user:fl.user});
+  if(neurons.length>170) neurons.splice(neurons.findIndex(n=>!n.user),1);
+  const lobe = EMO[fl.emo].lobe, c = rgbs(fl.emo);
+  flash[lobe] = fl.user ? 1.4 : 1;
+  beat = Math.min(1.4, beat + (fl.user ? 1.1 : .25));
+  activity = Math.min(3, activity + .35);
+  if(fl.user) rings.push({ pi:fl.pi, c, born:now, big:true });
+  waves.push({ x:B.X[fl.pi], y:B.Y[fl.pi], z:B.Z[fl.pi], c:EMO[fl.emo].rgb, born:now, big:fl.user });
+  if(waves.length > 7) waves.splice(waves.findIndex(w=>!w.big), 1);
+  const p = proj(fl.pi), n = fl.user ? 30 : 8;
+  for(let k=0;k<n;k++){
+    const a=Math.random()*6.2832, sp=(40+Math.random()*(fl.user?260:150))*DPR, life=.6+Math.random()*.6;
+    bursts.push({ x:p.x, y:p.y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp, life, max:life, s:(1.4+Math.random()*2.2)*DPR, c });
+  }
+  if(fl.user || Math.random() < .3)
+    floaters.push({ pi:fl.pi, text: fl.emo, color: art(fl.emo), born:now, dur: fl.user?2600:1700, big:fl.user });
+  recordThought(fl.emo, fl.ticker, fl.text, fl.user, fl.live);
+  if(fl.user){ showCard(fl); bump("sNeurons"); }
+}
+
+// a flight curves in from the edge of the hero, never from behind the copy
+function launchThought(th, from, user){
+  const now=performance.now();
+  let sx, sy;
+  if(from){ sx=from.x; sy=from.y; }
+  else {
+    const side = R();
+    if(side < .45){ sx = MW + 30*DPR; sy = (.14 + R()*.58)*MH; }
+    else if(side < .75){ sx = BX + (R()-.35)*SZ*.9; sy = 96*DPR; }
+    else { sx = BX + (R()-.35)*SZ*.9; sy = MH + 30*DPR; }
+  }
+  const bend = (R()*2-1)*.45;
+  const label = th.text.length > 40 ? th.text.slice(0,38)+"…" : th.text;
+  const fl = { ...th, label, w:null, pi:targetIn(th.emo), sx, sy, t0:now, dur: user?2200:2100+R()*900, user };
+  fl.cx = e => (fl.sx+e.x)/2 - (e.y-fl.sy)*bend;
+  fl.cy = e => (fl.sy+e.y)/2 + (e.x-fl.sx)*bend - (user?120*DPR:0);
+  flights.push(fl);
+}
+function fireTrade(tr){
+  recordTrade(tr.tk, tr.buy, tr.usd);
+  const pi=(R()*B.n)|0, k=.6+Math.min(1.1,tr.usd/12000);
+  B.boost[pi]=1; B.boostBuy[pi]=tr.buy?1:0;
+  for(let j=0;j<10;j++){ const q=(pi+ri(-60,60)+B.n)%B.n; B.boost[q]=.8; B.boostBuy[q]=tr.buy?1:0; }
+  const now=performance.now();
+  sparks.push({pi, buy:tr.buy, k, born:now});
+  if(tr.usd > 12000 && floaters.length < 3 && !PHONE.matches)
+    floaters.push({ pi, text:(tr.buy?"+":"−")+"$"+fmt(tr.usd)+" "+tr.tk, color: tr.buy?"#72d4f4":"#9aa8b8", born:now, dur:1900, big:false });
+  activity = Math.min(3, activity + .12);
+}
+
+// the world, simulated: a steady drip, and every so often a surge
+// For the first five seconds only trades fire: the visitor gets to read the headline and see
+// the brain before thoughts start flying across it.
+const QUIET_UNTIL = performance.now() + 5000;
+function tick(){
+  const quiet = performance.now() < QUIET_UNTIL;
+  // on a phone the bell is a light beside the headline: trades still spark it, but nothing
+  // flies in and no text floats over it - a visitor's own thought is the one exception
+  if(quiet || PHONE.matches || R() < .56) fireTrade(makeTrade()); else launchThought(pickThought(), null, false);
+  if(!quiet && R() < .02){
+    const n=ri(4,6);
+    for(let i=0;i<n;i++) setTimeout(() => { if(PHONE.matches || R()<.6) fireTrade(makeTrade()); else launchThought(pickThought(), null, false); }, i*(90+R()*110));
+  }
+  setTimeout(tick, 750 + R()*950);
+}
+
+/* ================= the intake ================= */
+// Thoughts go to the server, which files them and hands back where it put them. Served
+// from /brain/ the API sits alongside; opened from a file:// copy it still talks to the
+// live one, so a local page behaves like the real thing.
+const API = location.protocol === "file:" ? "https://graid-ai.com/brain/api" : "api";
+let lastThoughtId = 0, apiUp = false;
+const seenThought = new Set();
+
+async function apiStats(){
+  try {
+    const r = await fetch(API + "/stats", { cache: "no-store" });
+    if(!r.ok) throw 0;
+    const s = await r.json();
+    apiUp = true; S.neurons = s.neurons;   // the counter comes from the server
+  } catch { apiUp = false; }
+}
+// Somebody else's thought, arriving while you watch.
+async function apiPoll(){
+  if(!apiUp) return;
+  try {
+    const r = await fetch(API + "/thoughts?after=" + lastThoughtId + "&limit=10", { cache: "no-store" });
+    if(!r.ok) return;
+    const list = (await r.json()).thoughts || [];
+    for(const t of list.slice().reverse()){
+      if(t.id > lastThoughtId) lastThoughtId = t.id;
+      if(seenThought.has(t.id)) continue;
+      seenThought.add(t.id);
+      launchThought({ text: t.text, emo: t.emo, ticker: t.ticker, live: true }, null, false);
+    }
+    if(list.length) apiStats();                         // the server owns both counters
+  } catch {}
+}
+
+/* ================= feeding the brain ================= */
+const KW = {
+  FEAR:["zero","crash","dump","scared","fear","top","bubble","rekt","sold","sell","ugly","dying","red","bear","panic","afraid","out"],
+  GREED:["moon","send","pump","100x","printing","buy","bought","loading","leverage","rich","melt","ath","bull","2k"],
+  FOMO:["missed","everyone","late","regret","fomo","aping","ape","sidelines","barber","chasing","left behind"],
+  HOPIUM:["recover","bottom","soon","trust","one day","undervalued","bounce","believe","resting","will"],
+  COPE:["long term","fine","holding","unrealized","zoom","stuck","value investor","not selling","okay","cope"]
+};
+// Same rule the server uses: a symbol that is also an ordinary word needs its cashtag, or
+// "all this ai hype" would be filed under a token called AI.
+const NEEDS_TAG=/^(ai|meme|index|net|up|cat|dog|one|all|it|is|new|the|top|buy|sell)$/i;
+function tickerOf(text){
+  for(const sym of TICKERS){
+    const s=sym.replace(/[^A-Za-z0-9]/g,""); if(!s) continue;
+    if(new RegExp("\\$"+s+"\\b","i").test(text)) return sym;
+    if(NEEDS_TAG.test(s)) continue;
+    if(new RegExp("\\b"+s+"\\b","i").test(text)) return sym;
+  }
+  return null;
+}
+function classify(text){
+  const t=text.toLowerCase(); let best="COPE", bs=0;
+  for(const e of EMOS){ let s=0; for(const w of KW[e]) if(t.includes(w)) s+=w.length>4?2:1; if(s>bs){ bs=s; best=e; } }
+  return {emo:best, ticker:tickerOf(text)};
+}
+const SAYS = { "wait":"Not so fast - one thought a minute.", "already said":"Someone already said exactly that.",
+  "no links":"No links.", "not that":"Not that.", "too short":"A little longer.", "too long":"Too long.",
+  "enough for today":"That's enough for today." };
+$("feed").addEventListener("submit", async e => {
+  e.preventDefault();
+  const input=$("thought"), btn=e.target.querySelector("button"), msg=$("feedmsg"), text=input.value.trim();
+  if(text.length < 3){ input.focus(); return; }
+  const ir=input.getBoundingClientRect(), hr=mind.getBoundingClientRect();
+  const from={ x:(ir.left+ir.width*.5-hr.left)*DPR, y:(ir.top-hr.top)*DPR };
+  msg.textContent=""; msg.className="feedmsg"; btn.disabled=true;
+  try {
+    const r = await fetch(API + "/thought", { method:"POST", headers:{"content-type":"application/json"}, body: JSON.stringify({ text }) });
+    const d = await r.json();
+    if(!r.ok){
+      msg.textContent = SAYS[d.error] || "Not taken." ;
+      if(d.retryIn) msg.textContent += " " + d.retryIn + "s.";
+      btn.disabled=false; return;
+    }
+    apiUp = true; lastThoughtId = Math.max(lastThoughtId, d.id); seenThought.add(d.id);
+    S.neurons = d.neurons;
+    launchThought({ text: d.text, emo: d.emo, ticker: d.ticker, live: true, id: d.id }, from, true);
+    input.value=""; input.blur();
+    msg.className="feedmsg ok"; msg.textContent="Stored. Neuron #" + fmt(d.neurons) + ".";
+    apiStats();
+  } catch {
+    // the page still works without the server; the thought just stays in this browser
+    const c = classify(text);
+    launchThought({ text, emo:c.emo, ticker:c.ticker }, from, true);
+    input.value=""; input.blur();
+    msg.textContent = "Server unreachable - this one stayed in your browser.";
+  }
+  btn.disabled=false;
+});
+$("sheetFeed").addEventListener("click", () => setTimeout(()=>$("thought").focus(), 450));
+
+function showCard(fl){
+  const card=$("card"), n=fmt(S.neurons);
+  const share="My thought landed in the "+fl.emo+" band of MEDUSA - neuron #"+n+". What is retail really thinking?";
+  card.innerHTML =
+    "<q>"+esc(fl.text)+"</q>"+
+    "<div class='res'>landed in the <b style='color:"+art(fl.emo)+"'>"+fl.emo+"</b> band · "+EMO[fl.emo].lobeName+
+      " · neuron #"+n+(fl.ticker?" · "+fl.ticker:"")+"</div>"+
+    "<div class='acts'><a target='_blank' rel='noopener' href='https://x.com/intent/tweet?text="+encodeURIComponent(share)+"'>Share on X</a>"+
+    "<button type='button' id='again'>Feed another</button></div>";
+  card.hidden=false;
+  $("again").onclick = () => { card.hidden=true; $("thought").focus(); };
+}
+
+/* ================= the tops, straight from the chain =================
+   Three questions the aggregators do not answer: how many separate wallets bought, which way
+   the split leans, and what the single biggest trade was. Each row is countable from the logs
+   and links back to the transaction it came from. */
+let LIVE_CHAIN = window.CHAIN_LIVE || null;
+const EXPLORER = (window.CHAIN_LIVE && window.CHAIN_LIVE.explorer) || (window.CHAIN_READ && window.CHAIN_READ.explorer) || "https://robinhoodchain.blockscout.com";
+// Which chain this deployment reads comes from the data files, so the same page serves
+// the main site (Robinhood Chain) and an Arc build kept aside - every chain-bound word in the copy
+// carries a data-c attribute and is filled from here.
+const CHAIN_KEY = (window.CHAIN_LIVE && window.CHAIN_LIVE.chain) || (window.CHAIN_READ && window.CHAIN_READ.chain) || "robinhood";
+const CHAIN_COPY = {
+  arc:       { name: "Arc", slug: "arc", id: "5042", social: "X", indep: "independent of Circle. Arc is used as a public network." },
+  robinhood: { name: "Robinhood Chain", slug: "robinhood", id: "4663", social: "StockTwits and X", indep: "independent of Robinhood. Robinhood Chain is used as a public network." }
+}[CHAIN_KEY] || { name: CHAIN_KEY, slug: CHAIN_KEY, id: "—", social: "X", indep: "an independent read of a public network." };
+document.querySelectorAll("[data-c]").forEach(el => { if(CHAIN_COPY[el.dataset.c] != null) el.textContent = CHAIN_COPY[el.dataset.c]; });
+const rhTx = h => EXPLORER + "/tx/" + h;
+const usdShort = v => v >= 1e6 ? "$"+(v/1e6).toFixed(1)+"M" : v >= 1e3 ? "$"+Math.round(v/1e3)+"k" : "$"+Math.round(v);
+
+const rhAddr = a => EXPLORER + "/address/" + a;
+
+function renderTops(){
+  const list = $("fillList");
+  if(!LIVE_CHAIN || !LIVE_CHAIN.tokens || !LIVE_CHAIN.tokens.length){
+    if(list) list.innerHTML = "<li class='empty'>The chain reader has not run yet.</li>";
+    return;
+  }
+  const T = LIVE_CHAIN.tokens;
+
+  // Not the biggest ticket - the most unusual one: a $93k print on NVDA is a normal Tuesday,
+  // the same size on a thin memecoin is the whole board talking about it. So each print is
+  // measured against its own token's typical buy size this hour, and that ratio is what's
+  // ranked, not the raw dollar figure. One print per token still - a wallet that bought and
+  // sold the same size was already dropped upstream as a round trip.
+  const seen = new Set();
+  const fills = T.flatMap(t => (t.prints||[]).map(p => ({
+      ...p, symbol: t.symbol, url: t.url, mcap: t.mcap, liquidity: t.liquidity,
+      buyers: t.buyers, sellers: t.sellers, volume: t.volume, medianBuyUsd: t.medianBuyUsd,
+      ratio: t.medianBuyUsd ? p.usd / t.medianBuyUsd : 0
+    })))
+    // Buys only: the bullish signal is someone putting in unusually much, not the biggest
+    // sell - a sell just means someone had a bag, which isn't conviction the same way.
+    .filter(p => p.usd >= 500 && p.side === "buy").sort((a,b) => b.ratio - a.ratio)
+    .filter(p => !seen.has(p.symbol) && seen.add(p.symbol)).slice(0, 7);
+
+  // Shared with the summary sentence above the table, so the token that gets called out
+  // by name is never one the reader then can't find in the list right below it.
+  const ratioLabel = r => !r ? "no typical size yet" : r >= 20 ? "far above typical"
+    : r >= 5 ? "well above typical" : r >= 2 ? "above typical" : "near typical";
+  const maxUsd = fills.length ? Math.max(...fills.map(p => p.usd)) : 0;
+  list.innerHTML = fills.length ? fills.map((p,i) => {
+    const side = p.side === "buy" ? "buy" : "sell";
+    const ar = side === "buy" ? "▲" : "▼";
+    const pct = maxUsd ? Math.max(4, Math.round(p.usd / maxUsd * 100)) : 0;
+    const sym = p.url ? "<a href='"+p.url+"' target='_blank' rel='noopener'>"+esc(p.symbol)+"</a>" : esc(p.symbol);
+    // The raw multiple (some of these run into the thousands, since a token whose typical
+    // buy is dust-sized makes any real trade look astronomical) reads as broken, not
+    // informative - so the row shows a plain-language band, and the actual median size is
+    // what backs it up in the fold, not a bare ×N.
+    const label = ratioLabel(p.ratio);
+    const medianTxt = p.medianBuyUsd < 1 ? "under $1" : usdShort(p.medianBuyUsd);
+    return "<li class='fillRow'><span class='idx'>" + String(i+1).padStart(2,"0") + "</span>" +
+      "<span class='tk " + side + "'><span class='ar'>" + ar + "</span>" + sym + "</span>" +
+      "<span class='bar'><i class='" + side + "' data-w='" + pct + "'></i></span>" +
+      "<span class='amt " + side + "'><span class='n' data-usd='" + p.usd + "'>" + usdShort(p.usd) + "</span><small class='amtSub'>" + label + "</small></span>" +
+      "<span class='links'><a href='" + rhTx(p.tx) + "' target='_blank' rel='noopener'>the trade ↗</a>" +
+      "<a href='" + rhAddr(p.who) + "' target='_blank' rel='noopener'>the wallet ↗</a></span>" +
+      "<div class='fillDetail'>" +
+        "<div><div class='k'>Vs this token's typical buy</div><div class='v'>" + label + " - median buy here is " + medianTxt + "</div></div>" +
+        "<div><div class='k'>Market cap</div><div class='v'>" + usdShort(p.mcap) + "</div></div>" +
+        "<div><div class='k'>Liquidity</div><div class='v'>" + usdShort(p.liquidity) + "</div></div>" +
+        "<div><div class='k'>This hour, " + esc(p.symbol) + "</div><div class='v'>" + p.buyers + " buyers · " + p.sellers + " sellers · " + usdShort(p.volume) + " moved</div></div>" +
+        "<div><div class='k'>Wallet</div><div class='v'>" + p.who.slice(0,6) + "…" + p.who.slice(-4) + "</div></div>" +
+        "<div><div class='k'>Side</div><div class='v' style='color:" + (side==="buy"?"var(--buy)":"var(--sell)") + "'>" + (side==="buy"?"Bought":"Sold") + " " + usdShort(p.usd) + "</div></div>" +
+      "</div></li>";
+  }).join("")
+    : "<li class='empty'>No ticket over $500 in the last hour.</li>";
+  list.querySelectorAll(".fillRow").forEach(li => li.addEventListener("click", e => {
+    if(e.target.closest("a")) return;          // links still open normally, not the fold
+    li.classList.toggle("open");
+  }));
+
+  // the hour in one sentence, so the list below is read rather than decoded - built from
+  // the exact same fills[0] the table leads with, never a separately-picked token the
+  // reader then can't find in the list right below it.
+  const hands = LIVE_CHAIN.wallets || T.reduce((n,t) => n + t.buyers + t.sellers, 0);
+  const bits = ["<b class='n' data-n='" + hands + "'>" + fmt(hands) + "</b> trades across <b class='n' data-n='" + T.length + "'>" + T.length + "</b> tokens in the last hour."];
+  if(fills.length){
+    const top = fills[0], side = top.side === "buy" ? "buy" : "sell";
+    bits.push("<b>" +
+      (top.url ? "<a href='" + top.url + "' target='_blank' rel='noopener'>" + esc(top.symbol) + "</a>" : esc(top.symbol)) +
+      "</b> stands out hardest - a <span class='" + (side==="buy"?"up":"down") + "'>" + (side==="buy"?"buy":"sell") + " of " +
+      usdShort(top.usd) + "</span>, " + ratioLabel(top.ratio) + " for this token.");
+  }
+  $("hourLine").innerHTML = bits.join(" ");
+
+  // bars fill and figures count up the moment the board scrolls into view (or right away,
+  // when a fresh chain read re-renders a board that is already on screen)
+  const box = list.closest(".fills");
+  if(box.classList.contains("in")) animateFills(); else box.addEventListener("reveal", animateFills, { once: true });
+  return fills.map(p => p.symbol);
+}
+function countUp(el, to, show, dur = 900){
+  const t0 = performance.now();
+  const step = now => { const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+    el.textContent = show(to * e); if(k < 1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
+function animateFills(){
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  document.querySelectorAll("#fillList .bar i[data-w]").forEach((el, i) => {
+    if(still){ el.style.width = el.dataset.w + "%"; return; }
+    setTimeout(() => el.style.width = el.dataset.w + "%", 80 + i * 70);
+  });
+  document.querySelectorAll("#fillList .amt .n[data-usd]").forEach((el, i) => {
+    const to = +el.dataset.usd; if(still) return;
+    setTimeout(() => countUp(el, to, usdShort, 800), i * 70);
+  });
+  document.querySelectorAll("#hourLine .n[data-n]").forEach(el => { if(!still) countUp(el, +el.dataset.n, fmt, 1100); });
+}
+
+// The cron on the server rewrites chain-live.js every ten minutes; the page asks for it
+// once a minute and, when the read is newer, re-renders with the rows it did not have
+// sliding in. Nothing is invented between reads - the age label just keeps counting.
+let shownFills = [];
+async function pollChain(){
+  try {
+    const r = await fetch("chain-live.js?" + Date.now(), { cache: "no-store" });
+    if(!r.ok) return;
+    const txt = await r.text();
+    const next = JSON.parse(txt.replace(/^[\s\S]*?window\.CHAIN_LIVE\s*=\s*/, "").replace(/;\s*$/, ""));
+    if(!next || !next.tokens || !LIVE_CHAIN || next.updated === LIVE_CHAIN.updated) return;
+    LIVE_CHAIN = next;
+    const before = new Set(shownFills);
+    shownFills = renderTops() || [];
+    document.querySelectorAll("#fillList .fillRow").forEach((li, i) => { if(!before.has(shownFills[i])) li.classList.add("fresh"); });
+    renderVerdict();
+    tapeEvents = buildTapeEvents();
+    $("tBlock").textContent = Number(next.head).toLocaleString("en-US");
+    $("tVerd").textContent = convictionScores().length;
+  } catch {}
+}
+
+/* ================= verdict: chain lean paired against crowd lean =================
+   A token needs real chain activity to appear at all (≥3 wallets, so a single bot trade
+   never qualifies) - everything above that shows, even with only one side read, labelled
+   as exactly that ("chain only" - no crowd tags today). Where both sides exist (≥2 tagged
+   posts), they're scored against each other. RUNNER WATCH is not a price call: it flags
+   real buyers outnumbering sellers by 3-to-1 or more with nothing on social contradicting
+   it - where the money is concentrating hardest right now, nothing about what happens next. */
+function convictionScores(){
+  // Always today's social read against the chain's last hour - pairing a past day's words
+  // with right-now money would compare two different windows and call it one.
+  const chain = (LIVE_CHAIN && LIVE_CHAIN.tokens) || [];
+  const social = (LIVE.length ? LIVE[0] : null)?.tickers || {};
+  const out = [];
+  for(const t of chain){
+    const wallets = t.buyers + t.sellers;
+    if(wallets < 3) continue;                          // too thin to say anything at all
+    const chainLean = (t.buyers - t.sellers) / wallets;
+    const s = social[t.symbol];
+    const messages = s ? s.bull + s.bear : 0;
+    const hasSocial = messages >= 2;
+    const socialLean = hasSocial ? (s.bull - s.bear) / messages : null;
+    let score, tag;
+    if(hasSocial){
+      score = Math.round(((chainLean + socialLean) / 2) * 100);
+      tag = Math.sign(chainLean) === Math.sign(socialLean) ? "CONFIRMED" : "CONTRADICTED";
+    } else {
+      score = Math.round(chainLean * 100);
+      tag = "CHAIN ONLY";
+    }
+    const runner = chainLean >= .5 && wallets >= 5 && (!hasSocial || socialLean >= 0);
+    out.push({ symbol: t.symbol, url: t.url, chainLean, socialLean, hasSocial, score, tag, runner,
+               buyers: t.buyers, sellers: t.sellers, bull: s?.bull ?? 0, bear: s?.bear ?? 0 });
+  }
+  return out.sort((a,b) => (b.runner - a.runner) || (Math.abs(b.score) - Math.abs(a.score)));
+}
+function renderVerdict(){
+  const line = $("verdictLine"), wrap = $("convList");
+  if(!line || !wrap || !LIVE_CHAIN) return;
+  const rows = convictionScores().slice(0, 5);
+  const scanned = (LIVE_CHAIN.tokens || []).length;
+  if(!rows.length){
+    line.innerHTML = "Nothing on the last-hour board had enough wallets trading yet to read - check back soon.";
+    wrap.innerHTML = ""; return;
+  }
+  const top = rows[0];
+  if(top.runner){
+    line.innerHTML = "<b>" + top.symbol + "</b> is where retail money is concentrating hardest right now - " +
+      top.buyers + " wallets buying, " + top.sellers + " selling, while " +
+      (top.hasSocial ? "the " + top.bull + " tagged posts on it aren't fighting that." : "almost nobody is talking about it.") +
+      " <b>Not a price call</b> - just where the money is right now.";
+  } else if(top.hasSocial){
+    const agree = top.tag === "CONFIRMED";
+    line.innerHTML = "On <b>" + top.symbol + "</b> the crowd is <span class='" + (top.socialLean>0?"up":"down") + "'>" +
+      (top.socialLean>0?"bullish":"bearish") + "</span> (" + top.bull + " vs " + top.bear + " tagged posts) and the chain is <span class='" +
+      (top.chainLean>0?"up":"down") + "'>" + (top.chainLean>0?"buying":"selling") + "</span> (" + top.buyers + " vs " + top.sellers +
+      " wallets) - words and money <b>" + (agree ? "agree" : "disagree") + "</b>.";
+  } else {
+    line.innerHTML = "Nobody's tagged <b>" + top.symbol + "</b> today, but the chain is <span class='" +
+      (top.chainLean>0?"up":"down") + "'>" + (top.chainLean>0?"buying":"selling") + "</span> (" +
+      top.buyers + " vs " + top.sellers + " wallets) - retail money moving with no crowd read to check it against.";
+  }
+  const bar = v => {
+    if(v == null) return "<span class='track2 nodata'></span>";
+    const w = Math.round(Math.abs(v) * 50), left = v >= 0 ? 50 : 50 - w;
+    return "<span class='track2'><i style='left:" + left + "%;width:" + w + "%;background:" +
+      (v >= 0 ? "var(--buy)" : "var(--sell)") + "'></i></span>";
+  };
+  wrap.innerHTML = rows.map(r => {
+    const tagClass = r.runner ? "runner" : r.tag.toLowerCase().replace(/\s+/g, "");
+    const tagLabel = r.runner ? "RUNNER WATCH" : r.tag;
+    const verdictNote = r.runner
+      ? "Real buyers outnumbering sellers 3-to-1 or more, and nothing on social is fighting it. Not a price call - just where the money is right now."
+      : r.tag === "CONFIRMED" ? "Words and money point the same way."
+      : r.tag === "CONTRADICTED" ? "Words and money point opposite ways."
+      : "No crowd read yet to check the chain against - chain-only for now.";
+    return "<li class='" + (r.runner ? "runner" : "") + "'>" +
+    "<span class='tk'>" + (r.url ? "<a href='" + esc(r.url) + "' target='_blank' rel='noopener'>" + esc(r.symbol) + "</a>" : esc(r.symbol)) + "</span>" +
+    "<span class='tag " + tagClass + "'>" + tagLabel + "</span>" +
+    "<span class='dual'>" +
+      "<span class='seg'><span>money</span>" + bar(r.chainLean) + "</span>" +
+      "<span class='seg'><span>words</span>" + (r.hasSocial ? bar(r.socialLean) : "<span class='nolabel'>no read</span>") + "</span>" +
+    "</span>" +
+    "<span class='score " + (r.score >= 0 ? "up" : "down") + "'>" + (r.score > 0 ? "+" : "") + r.score + "</span>" +
+    "<div class='convDetail'>" +
+      "<div><div class='k'>Money</div><div class='v'>" + r.buyers + " buying · " + r.sellers + " selling</div></div>" +
+      "<div><div class='k'>Words</div><div class='v'>" + (r.hasSocial ? r.bull + " bullish · " + r.bear + " bearish tagged posts" : "no crowd read yet") + "</div></div>" +
+      "<div><div class='k'>Medusa verdict</div><div class='v'>" + verdictNote + "</div></div>" +
+    "</div></li>";
+  }).join("");
+  wrap.querySelectorAll("li").forEach(li => li.addEventListener("click", e => {
+    if(e.target.closest("a")) return;          // the token link still opens normally
+    li.classList.toggle("open");
+  }));
+}
+
+/* ================= the tape: real rows already on the page, replayed as a log =================
+   Nothing here is generated for the console - it's the same convictionScores() rows, the same
+   chain-live.js tickets, and the same daily-data.js posts already rendered above, just replayed
+   one line at a time so the page reads as something running rather than a page of tables. */
+// The mark, drawn from 5x5 bitmaps so it's the same block-letter style as the GRAID console.
+// Two cells per pixel: a monospace glyph is about half as wide as it is tall.
+const PIX = {
+  M:["#...#","##.##","#.#.#","#...#","#...#"], E:["####","#...","###.","#...","####"],
+  D:["###.","#..#","#..#","#..#","###."], U:["#..#","#..#","#..#","#..#",".##."],
+  S:[".###","#...",".##.","...#","###."], A:[".##.","#..#","####","#..#","#..#"]
+};
+function blockWord(word){
+  const rows = ["","","","",""];
+  for(const ch of word){
+    const g = PIX[ch]; if(!g) continue;
+    for(let r=0;r<5;r++) rows[r] += g[r].replace(/#/g,"██").replace(/\./g,"  ") + "  ";
+  }
+  return rows.join("\n");
+}
+const shortAddr = a => a ? a.slice(0,6) + "…" + a.slice(-4) : "";
+const clock = () => new Date().toTimeString().slice(0,8);
+
+// Every entry is a real row already rendered above - a verdict, a fill, a post - so the
+// console can't say anything the page doesn't. Order is shuffled once so the three kinds
+// interleave instead of arriving in blocks.
+function buildTapeEvents(){
+  const events = [];
+  const chain = (LIVE_CHAIN && LIVE_CHAIN.tokens) || [];
+  const addrOf = {}; chain.forEach(t => addrOf[t.symbol] = t.address);
+  for(const r of convictionScores()){
+    const why = r.runner ? "<span class='f'>RUNNER WATCH</span> · real buyers 3-to-1 or more, nothing on social fighting it"
+      : r.tag === "CONFIRMED" ? "<span class='f'>CONFIRMED</span> · words and money point the same way"
+      : r.tag === "CONTRADICTED" ? "<span class='f'>CONTRADICTED</span> · words and money point opposite ways"
+      : "<span class='g'>CHAIN ONLY</span> · no crowd read to check against yet";
+    events.push({
+      kind: "verdict", lean: Math.max(-1, Math.min(1, r.score / 100)),
+      cls: r.runner ? "flag" : r.score >= 0 ? "buy" : "sell",
+      sym: r.symbol, addr: shortAddr(addrOf[r.symbol]), on: "on chain",
+      bar: Math.min(1, Math.abs(r.score) / 100), pct: (r.score > 0 ? "+" : "") + r.score,
+      s1: r.buyers + " buy / " + r.sellers + " sell" + (r.hasSocial ? " · " + r.bull + " bull / " + r.bear + " bear tagged" : " · no social read"),
+      s2: why
+    });
+  }
+  const maxUsd = Math.max(1, ...chain.map(t => (t.prints||[])[0]?.usd || 0));
+  for(const t of chain){
+    const p = t.prints && t.prints[0]; if(!p) continue;
+    const ratio = t.medianBuyUsd ? p.usd / t.medianBuyUsd : 0;
+    const size = !ratio ? "no typical size yet" : ratio >= 20 ? "far above typical for this token" : ratio >= 5 ? "well above typical" : ratio >= 2 ? "above typical" : "near typical size";
+    events.push({
+      kind: "print", usd: p.usd, lean: (p.side === "sell" ? -1 : 1) * Math.max(.15, p.usd / maxUsd),
+      cls: p.side === "sell" ? "sell" : "buy",
+      sym: t.symbol, addr: shortAddr(t.address), on: p.side === "buy" ? "bought" : "sold",
+      bar: p.usd / maxUsd, pct: usdShort(p.usd),
+      s1: "wallet " + shortAddr(p.who) + " · via the pool · " + t.buyers + " buyers / " + t.sellers + " sellers this hour",
+      s2: (p.side === "buy" ? "<span class='f'>" : "<span class='r'>") + size + "</span>"
+    });
+  }
+  const posts = (LIVE.length ? LIVE[0].posts : []) || [];
+  const maxFol = Math.max(1, ...posts.map(p => p.followers || 0));
+  for(const p of posts){
+    const snippet = p.text.replace(/\s+/g, " ").slice(0, 72);
+    events.push({
+      kind: "post", lean: (p.sentiment === "Bearish" ? -1 : 1) * Math.max(.15, (p.followers || 0) / maxFol),
+      cls: p.sentiment === "Bearish" ? "sell" : "buy",
+      sym: p.ticker, addr: "@" + p.handle, on: "on X",
+      bar: (p.followers || 0) / maxFol, pct: reach(p.followers || 0),
+      s1: "“" + esc(snippet) + (p.text.length > 72 ? "…" : "") + "”",
+      s2: (p.sentiment === "Bearish" ? "<span class='r'>bearish</span>" : "<span class='f'>bullish</span>") + " · " + esc((p.emo||"").toLowerCase()) + " · " + reach(p.followers||0) + " followers"
+    });
+  }
+  // deterministic shuffle: the same page always replays in the same order
+  const g = mulberry(events.length * 7919 + 17);
+  for(let i=events.length-1;i>0;i--){ const j=(g()*(i+1))|0; [events[i],events[j]]=[events[j],events[i]]; }
+  return events;
+}
+let tapeEvents = [], tapeIdx = 0;
+const tapeStart = Date.now();
+const SPARK = "▁▂▃▄▅▆▇█", sparkOf = v => SPARK[Math.max(0, Math.min(7, Math.round((v + 1) / 2 * 7)))];
+let sparkLean = [];                       // the last sixteen entries' lean; shifts with every new one
+const STILL = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// what she is on right now - the entry that lands next - with a spinner while it types
+const SPIN = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"; let spinI = 0;
+function scanLine(e){
+  const el = $("termScan"); if(!el) return;
+  if(!e){ el.innerHTML = ""; return; }
+  const what = e.kind === "verdict" ? "scoring <span class='w'>$" + esc(e.sym) + "</span> · words against money"
+    : e.kind === "print" ? "scanning <span class='w'>$" + esc(e.sym) + "</span> · pool " + esc(e.addr) + " · last fill"
+    : "reading <span class='w'>" + esc(e.addr) + "</span> on X · $" + esc(e.sym);
+  el.innerHTML = "<span class='sp' id='termSpin'>" + SPIN[0] + "</span>" + what;
+}
+function spinTick(){ const s = $("termSpin"); if(s) s.textContent = SPIN[spinI++ % SPIN.length]; }
+
+// An entry is typed, not dropped: the symbol a character at a time, then the row, then the
+// two detail lines - a read in progress, not a log being scrolled.
+function typeEntry(div, e){
+  const sym = div.querySelector(".sym"), rest = [...div.querySelectorAll(".ad,.on,.bar,.pct")];
+  const s1 = div.querySelector(".s1"), s2 = div.querySelector(".s2"), fill = div.querySelector(".bar i");
+  const full = "$" + e.sym, target = Math.round(Math.max(.03, e.bar) * 100) + "%";
+  if(STILL){ sym.textContent = full; rest.concat(s1, s2).forEach(x => x.classList.remove("pend")); fill.style.width = target; return; }
+  sym.classList.add("typing");
+  let i = 0;
+  const step = () => {
+    if(!div.isConnected) return;
+    sym.textContent = full.slice(0, ++i);
+    if(i < full.length){ setTimeout(step, 26 + Math.random() * 30); return; }
+    setTimeout(() => {
+      sym.classList.remove("typing");
+      rest.forEach(x => x.classList.remove("pend"));
+      requestAnimationFrame(() => fill.style.width = target);
+      setTimeout(() => s1.classList.remove("pend"), 140);
+      setTimeout(() => s2.classList.remove("pend"), 300);
+    }, 90);
+  };
+  setTimeout(step, 60);
+}
+function tapeTick(){
+  const body = $("termBody"); if(!body) return;
+  if(!tapeEvents.length) tapeEvents = buildTapeEvents();
+  if(!tapeEvents.length) return;
+  const e = tapeEvents[tapeIdx % tapeEvents.length]; tapeIdx++;
+  const div = document.createElement("div");
+  div.className = "tl " + e.cls;
+  div.innerHTML =
+    "<div class='h'><span class='mk'>▶</span><span class='t'>" + clock() + "</span><span class='sym'></span>" +
+    "<span class='ad pend'>" + esc(e.addr) + "</span><span class='on pend'>" + e.on + "</span>" +
+    "<span class='bar pend'><i></i></span><span class='pct pend'>" + e.pct + "</span></div>" +
+    "<div class='s s1 pend'><span class='g'>│</span> " + e.s1 + "</div>" +
+    "<div class='s s2 pend'><span class='g'>└</span> " + e.s2 + "</div>";
+  body.appendChild(div);
+  while(body.children.length > 6) body.removeChild(body.firstChild);
+  typeEntry(div, e);
+  tapePulse(e);
+  // the sparkline is the shape of what just went past, not a frozen snapshot
+  sparkLean.push(e.lean); if(sparkLean.length > 16) sparkLean.shift();
+  $("tSpark").textContent = sparkLean.map(sparkOf).join("");
+  scanLine(tapeEvents[tapeIdx % tapeEvents.length]);
+}
+// Every entry the tape prints also reaches the jellyfish in the hero: a fill sparks on the
+// bell and floats its real size, a verdict runs a packet down the tentacles, a runner rings
+// the whole bell. Same rows, one organism - nothing here is drawn that the tape didn't say.
+function tapePulse(e){
+  if(STILL || typeof B === "undefined" || !B.n) return;
+  const now = performance.now();
+  const surge = n => { const idx = new Set(); while(idx.size < Math.min(n, tentacles.length)) idx.add((R()*tentacles.length)|0); for(const i of idx) tentacles[i].surge = now; };
+  if(e.kind === "print"){
+    const pi = (R()*B.n)|0, buy = e.cls !== "sell", k = .6 + Math.min(1.1, (e.usd||0) / 12000);
+    B.boost[pi] = 1; B.boostBuy[pi] = buy ? 1 : 0;
+    for(let j=0;j<10;j++){ const q=(pi+ri(-60,60)+B.n)%B.n; B.boost[q]=.8; B.boostBuy[q]=buy?1:0; }
+    sparks.push({ pi, buy, k, born: now });
+    if(floaters.length < 4 && !PHONE.matches) floaters.push({ pi, text: (buy ? "+" : "−") + e.pct + " " + e.sym, color: buy ? "#72d4f4" : "#9aa8b8", born: now, dur: 2100, big: (e.usd||0) >= 10000 });
+    surge(1);
+    activity = Math.min(3, activity + .15);
+  } else if(e.kind === "verdict"){
+    const pi = (R()*B.n)|0;
+    if(e.cls === "flag"){
+      rings.push({ pi, c: "93,183,232", born: now, big: true });
+      setTimeout(() => rings.push({ pi, c: "93,183,232", born: performance.now(), big: true }), 260);
+      beat = Math.min(1.4, beat + 1.1); for(let l=0;l<5;l++) flash[l] = Math.max(flash[l], 1.2);
+      surge(tentacles.length);
+      activity = Math.min(3, activity + .8);
+      // the note is pinned to a point on the front of the bell, upper half, so the
+      // leader line has somewhere to go
+      let best = pi, bz = -9;
+      for(let k=0;k<16;k++){ const q=(R()*B.n)|0, z=proj(q).z - (B.Y[q] > 0 ? .5 : 0); if(z > bz){ bz = z; best = q; } }
+      if(!PHONE.matches) callouts.push({ pi: best, sym: e.sym, why: e.s1.replace(/<[^>]+>/g, ""), born: now, dur: 3800 });
+      if(callouts.length > 1) callouts.shift();
+    } else {
+      rings.push({ pi, c: "93,183,232", born: now, big: false });
+      surge(3);
+    }
+  } else {
+    const pi = (R()*B.n)|0, p = proj(pi), c = e.cls === "sell" ? "200,215,230" : "93,183,232";
+    for(let k=0;k<8;k++){ const a=Math.random()*6.2832, sp=(40+Math.random()*150)*DPR, life=.6+Math.random()*.6;
+      bursts.push({ x:p.x, y:p.y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp, life, max:life, s:(1.4+Math.random()*2.2)*DPR, c }); }
+    if(floaters.length < 4 && !PHONE.matches) floaters.push({ pi, text: e.addr + " · " + e.sym, color: "#c8d7e6", born: now, dur: 1900, big: false });
+    surge(1);
+  }
+}
+// not a metronome: 1.2–2.6 s apart, now and then two in quick succession, a runner a beat longer
+function scheduleTape(){
+  const prev = tapeEvents.length ? tapeEvents[(tapeIdx - 1 + tapeEvents.length) % tapeEvents.length] : null;
+  let wait = 1200 + Math.random() * 1400;
+  if(prev && prev.cls === "flag") wait += 900;
+  else if(Math.random() < .18) wait = 420 + Math.random() * 200;
+  setTimeout(() => { tapeTick(); scheduleTape(); }, wait);
+}
+function tapeClock(){
+  const up = Math.floor((Date.now() - tapeStart) / 1000), m = Math.floor(up / 60), h = Math.floor(m / 60);
+  $("tClock").textContent = clock();
+  $("tUp").textContent = h ? h + "h" + (m % 60) + "m" : m ? m + "m" + (up % 60) + "s" : up + "s";
+}
+function startTape(){
+  const foot = $("termFoot"), age = $("consoleAge");
+  $("termLogo").textContent = blockWord("MEDUSA");
+  const rowCount = tapeEvents.length || (tapeEvents = buildTapeEvents()).length;
+  const chain = (LIVE_CHAIN && LIVE_CHAIN.tokens) || [], verdicts = convictionScores().length;
+  $("tVerd").textContent = verdicts;
+  $("tBlock").textContent = LIVE_CHAIN && LIVE_CHAIN.head ? Number(LIVE_CHAIN.head).toLocaleString("en-US") : "—";
+  // opens on the market's shape - buy/sell lean per token, deepest first - then shifts
+  // with every entry that goes past
+  sparkLean = chain.slice(0, 16).map(t => { const n = t.buyers + t.sellers; return n ? (t.buyers - t.sellers) / n : 0; });
+  $("tSpark").textContent = sparkLean.map(sparkOf).join("");
+  if(foot) foot.innerHTML = "record <b>" + fmt(rowCount) + "</b> real rows · <b>" + chain.length + "</b> tokens · <b>" + verdicts +
+    "</b> verdicts · recompute it yourself: npm run pull<br>read-only · nothing is signed, no wallet is touched · medusa-ai.pro";
+  if(age) age.textContent = rowCount + " rows on replay";
+  $("termCopy").onclick = () => {
+    const txt = [...$("termBody").querySelectorAll(".tl")].map(el => el.innerText).join("\n\n");
+    navigator.clipboard?.writeText(txt).then(() => { $("termCopy").textContent = "copied"; setTimeout(() => $("termCopy").textContent = "copy", 1400); });
+  };
+  tapeClock(); setInterval(tapeClock, 1000);
+  if(!STILL) setInterval(spinTick, 80);
+  tapeTick(); scheduleTape();
+}
+
+/* ================= say vs do: persistent rows that slide into place ================= */
+function dominant(tk){ const te=S.tickEmo[tk]; let b="COPE", bv=-1; for(const e of EMOS) if(te[e]>bv){ bv=te[e]; b=e; } return b; }
+function gapOf(tk){
+  const m=S.mood[tk], f=S.flow[tk];
+  if(Math.abs(m)<.12 || Math.abs(f)<.08 || Math.sign(m)===Math.sign(f)) return 0;
+  return clamp((Math.abs(m)+Math.abs(f)*1.4)/1.4, 0, 1);
+}
+// The visible say-vs-do table is gone, but the hero's verdict line is still generated from
+// this same real vs. self-reported comparison across the ten majors - so the gap math stays.
+let lastVerdict="";
+function renderSayDo(){
+  const rows = TICKERS.map(tk => ({tk, g:gapOf(tk), m:S.mood[tk], f:S.flow[tk], d:dominant(tk)}))
+                      .sort((a,b) => b.g-a.g || Math.abs(b.f)-Math.abs(a.f));
+  const top=rows[0], spoken=rows.filter(r => S.said[r.tk]).length;
+  const loud=rows.slice().sort((a,b)=>Math.abs(b.f)-Math.abs(a.f))[0];
+  const v = top.g>0
+    ? "Retail says <em style='color:"+col(top.d)+"'>"+top.d.toLowerCase()+"</em> on "+top.tk+
+      ". Retail is <em style='color:"+(top.f>0?"var(--buy)":"var(--sell)")+"'>"+(top.f>0?"buying":"selling")+"</em>."
+    : spoken
+      ? "Today retail says and does the same thing. Suspicious."
+      : "The money has spoken on all ten. <em style='color:"+(loud.f>0?"var(--buy)":"var(--sell)")+"'>"+
+        (loud.f>0?"Buying":"Selling")+" "+loud.tk+"</em> hardest - and nobody has said a word about any of it.";
+  if(v !== lastVerdict){
+    const el=$("verdict"), first=!lastVerdict; lastVerdict=v;
+    if(first){ el.innerHTML=v; }
+    else { el.classList.add("out"); setTimeout(() => { el.innerHTML=v; el.classList.remove("out"); }, 280); }
+  }
+}
+
+
+const MONTHS=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+/* ================= phone menu ================= */
+{
+  const burger = $("burger"), sheet = $("sheet");
+  const setMenu = on => { document.body.classList.toggle("menu", on); burger.setAttribute("aria-expanded", on); sheet.setAttribute("aria-hidden", !on); };
+  burger.addEventListener("click", () => setMenu(!document.body.classList.contains("menu")));
+  sheet.querySelectorAll("a").forEach(a => a.addEventListener("click", () => setMenu(false)));
+  addEventListener("keydown", e => { if(e.key === "Escape") setMenu(false); });
+  PHONE.addEventListener("change", () => setMenu(false));
+}
+
+/* ================= reveal on scroll ================= */
+if("IntersectionObserver" in window){
+  const io=new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting){ e.target.classList.add("in"); e.target.dispatchEvent(new Event("reveal")); io.unobserve(e.target); } }), {threshold:.12});
+  document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+} else document.querySelectorAll(".reveal").forEach(el => el.classList.add("in"));
+
+/* ================= daily read ================= */
+// Real posts, when scripts/pull-daily.mjs has run - the same feed block 03's
+// convictionScores() and block 04's tape replay read from.
+const LIVE = ((window.DAILY_READ || {}).days || []).filter(d => d.posts && d.posts.length);
+
+/* ---- the loudest six: real social posts about the chain's own coins ----
+   Chain-native tickers only - DOGE and PEPE ride this chain but weren't born here (see
+   NOT_OURS in scripts/pull-chain.mjs), so they don't count as "coins from there." No
+   bull/bear balancing, no chain cross-check: just the loudest accounts talking, ranked
+   by followers. scripts/pull-daily.mjs writes this as day.loudest each pull; older days
+   only have day.posts, so those are filtered client-side the same way as a fallback. */
+const LOUDEST_TICKERS = new Set(["CASHCAT", "PONS"]);
+function loudestFor(day){
+  if(day.loudest && day.loudest.length) return day.loudest;
+  return (day.posts || [])
+    .filter(p => p.src === "stocktwits" && LOUDEST_TICKERS.has(p.ticker))
+    .sort((a,b) => (b.followers||0) - (a.followers||0))
+    .slice(0, 6);
+}
+const hoursAgo = iso => { const x = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 36e5));
+  return x < 1 ? "now" : x < 24 ? x + "h" : Math.round(x / 24) + "d"; };
+const reach = n => n >= 1e6 ? (n/1e6).toFixed(1)+"M" : n >= 1e3 ? (n/1e3).toFixed(1).replace(/\.0$/,"")+"K" : String(n);
+
+function renderLoudest(){
+  if(!LIVE.length){
+    mountTape([]);
+    $("sampleNote").textContent = "Waiting on the first pull - run scripts/pull-daily.mjs.";
+    return;
+  }
+  const day = LIVE[0];                                    // only the latest day is kept
+  const posts = loudestFor(day);
+  const bull = posts.filter(p => p.sentiment === "Bullish").length, bear = posts.length - bull;
+  const mood = !posts.length ? ["—", ""] : bull > bear ? ["bullish leaning", "var(--buy)"] : bear > bull ? ["bearish leaning", "var(--sell)"] : ["evenly split", ""];
+  $("summary").innerHTML =
+    "<div><div class='k'>View</div><div class='v'>loudest calls</div></div>" +
+    "<div><div class='k'>Sentiment</div><div class='v'" + (mood[1] ? " style='color:" + mood[1] + "'" : "") + ">" + mood[0] + "</div></div>" +
+    "<div><div class='k'>Signal</div><div class='v'>by reach</div></div>";
+  mountTape(posts.map((p, i) => {
+    const bullish = p.sentiment === "Bullish";
+    const initials = (p.name || p.handle).split(/\s+/).map(w => w[0]).join("").slice(0, 2).toUpperCase();
+    const parts = p.text.split(/(?<=[.!?])\s+/);
+    let body = parts.length > 1 ? "<mark class='bull'>" + esc(parts[0]) + "</mark> " + esc(parts.slice(1).join(" ")) : esc(p.text);
+    body = body.replace(/\$([A-Z]{1,6})\b/g, "<b style='font-weight:500;color:var(--bone)'>$$$1</b>");
+    return "<article class='tw " + (bullish ? "bull" : "bear") + "' style='animation-delay:{{DELAY}}'>" +
+      "<header><span class='av'>" + esc(initials) + (p.avatar ? "<img src='" + esc(p.avatar) + "' alt='' loading='lazy' referrerpolicy='no-referrer' onerror='this.remove()'>" : "") + "</span>" +
+        "<div class='who'><b>" + esc(p.name) + "</b><span>@" + esc(p.handle) + " · " + reach(p.followers) + " followers · " + hoursAgo(p.at) + "</span></div>" +
+        "<span class='rank'>#" + (i+1) + "</span></header>" +
+      "<p>" + body + "</p>" +
+      "<div class='tags'><span class='tag " + (bullish ? "up" : "down") + "'>" + (bullish ? "bullish" : "bearish") + " · " + p.emo.toLowerCase() + "</span><span class='tag'>" + p.ticker + "</span>" +
+        "<span class='eng'>♥ " + p.likes + "</span></div>" +
+      "<footer><a class='verd' href='" + esc(p.url) + "' target='_blank' rel='noopener'>view on " + (p.src === "x" ? "X" : "StockTwits") + " ↗</a></footer>" +
+    "</article>";
+  }));
+  $("sampleNote").textContent = posts.length
+    ? "Real posts via X, quoted as written and linked to the original."
+    : "No posts with a clear bullish or bearish read in today's pull.";
+}
+
+// The tape: below a handful of cards, doubling them just to loop would read as an
+// obvious rerun, so a thin day sits still instead of pretending to be a long one.
+// Above that, the set is doubled once - the loop is exactly -50%, so it never seams -
+// and the duplicate skips its entrance delay since it's the same content, not new.
+const MIN_FOR_MOTION = 5, SEC_PER_CARD = 5.5;
+function mountTape(cards){
+  const track = $("tweets"), reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const loop = !reduced && cards.length >= MIN_FOR_MOTION;
+  track.classList.toggle("still", !loop);
+  track.style.setProperty("--dur", (cards.length * SEC_PER_CARD).toFixed(1) + "s");
+  const once = cards.map((html, i) => html.replace("{{DELAY}}", i*70 + "ms"));
+  track.innerHTML = loop ? once.join("") + cards.map(html => html.replace("{{DELAY}}", "0ms")).join("") : once.join("");
+}
+
+(function(){
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const box = $("tweets"); let last = null;
+  const reset = c => { if(c){ c.style.removeProperty("--rx"); c.style.removeProperty("--ry"); } };
+  box.addEventListener("pointermove", e => {
+    const c = e.target.closest(".tw");
+    if(c !== last){ reset(last); last = c; }
+    if(!c) return;
+    const r = c.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+    c.style.setProperty("--ry", ((x - .5) * 6).toFixed(2) + "deg");
+    c.style.setProperty("--rx", ((.5 - y) * 5).toFixed(2) + "deg");
+    c.style.setProperty("--mx", (x * 100).toFixed(1) + "%");
+    c.style.setProperty("--my", (y * 100).toFixed(1) + "%");
+  });
+  box.addEventListener("pointerleave", () => { reset(last); last = null; });
+})();
+
+/* ================= boot ================= */
+// Warm the state up first, so the brain, the gaps and the feeds are alive on first paint.
+for(let i=0;i<260;i++){
+  if(R()<.55){ const t=makeTrade(); recordTrade(t.tk,t.buy,t.usd); }
+  else { const th=pickThought(); recordThought(th.emo, th.ticker, th.text, false);
+         if(neurons.length<120) neurons.push({pi:targetIn(th.emo), emo:th.emo, text:th.text, ticker:th.ticker, born:-1e9, user:false}); }
+}
+for(let l=0;l<6;l++) heat[l]=heatT[l];
+S.neurons=0;
+// Real: every buy and sell counted on the ten tokens over the last day.
+S.tradesToday = CHAIN.reduce((n,t) => n + t.buys + t.sells, 0);
+shown.n=S.neurons; shown.t=S.tradesToday;
+
+layout();
+window.addEventListener("resize", layout);
+shownFills = renderTops() || []; renderSayDo(); renderLoudest(); renderVerdict(); startTape();
+setInterval(pollChain, 60000);
+setInterval(renderSayDo, 1500);
+requestAnimationFrame(frame);
+apiStats().then(apiPoll);          // the counters are tweened every frame, nothing to redraw here
+setInterval(apiPoll, 15000);
+setInterval(apiStats, 60000);
+setTimeout(tick, 500);
+// a read-only peephole for checks from the console; nothing on the page calls it
+window.__medusa = { peek: () => ({ sparks: sparks.length, rings: rings.length, callouts: callouts.length, floaters: floaters.map(f => f.text), surged: tentacles.filter(s => s.surge).length }),
+  refresh: () => { if(LIVE_CHAIN) LIVE_CHAIN.updated = "1970"; return pollChain(); } };
+})();
+</script>
+</body>
+</html>
