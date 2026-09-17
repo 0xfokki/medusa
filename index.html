@@ -1297,7 +1297,7 @@ function land(fl, now){
   }
   if(fl.user || Math.random() < .3)
     floaters.push({ pi:fl.pi, text: fl.emo, color: art(fl.emo), born:now, dur: fl.user?2600:1700, big:fl.user });
-  recordThought(fl.emo, fl.ticker, fl.text, fl.user, fl.live);
+  if(!fl.demo) recordThought(fl.emo, fl.ticker, fl.text, fl.user, fl.live);   // the opening five are mood, not data
   if(fl.user){ showCard(fl); bump("sNeurons"); }
 }
 
@@ -2069,6 +2069,16 @@ apiStats().then(apiPoll);          // the counters are tweened every frame, noth
 setInterval(apiPoll, 15000);
 setInterval(apiStats, 60000);
 setTimeout(tick, 500);
+// Five thoughts fly in as the page opens - the room's mood, one line per emotion. They are
+// not statements anyone made and they are not counted: they land, glow, and that is all.
+const OPENING = [
+  { text: "bulls are back. load up.",              emo: "GREED"  },
+  { text: "bears run this week, careful out there", emo: "FEAR"   },
+  { text: "everyone is in already. am I late?",    emo: "FOMO"   },
+  { text: "we bounce from here. we always do.",    emo: "HOPIUM" },
+  { text: "not selling. zoom out.",               emo: "COPE"   }
+];
+if(!STILL && !PHONE.matches) OPENING.forEach((t, i) => setTimeout(() => launchThought({ ...t, ticker: "", demo: true }, null, false), 1400 + i * 1300));
 // a read-only peephole for checks from the console; nothing on the page calls it
 window.__medusa = { peek: () => ({ sparks: sparks.length, rings: rings.length, callouts: callouts.length, floaters: floaters.map(f => f.text), surged: tentacles.filter(s => s.surge).length }),
   refresh: () => { if(LIVE_CHAIN) LIVE_CHAIN.updated = "1970"; return pollChain(); } };
