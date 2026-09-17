@@ -14,7 +14,7 @@
 <p align="center">
   <img alt="chain" src="https://img.shields.io/badge/Robinhood%20Chain-4663-5db7e8?style=flat-square&labelColor=030812">
   <img alt="window" src="https://img.shields.io/badge/on--chain%20read-every%2010%20min-e8edf4?style=flat-square&labelColor=030812">
-  <img alt="wallets" src="https://img.shields.io/badge/wallets%20last%20hour-1%2C052-e8edf4?style=flat-square&labelColor=030812">
+  <img alt="wallets" src="https://img.shields.io/badge/wallets%20last%20hour-985-e8edf4?style=flat-square&labelColor=030812">
   <img alt="api" src="https://img.shields.io/badge/API-open%2C%20no%20key-5db7e8?style=flat-square&labelColor=030812">
   <img alt="custody" src="https://img.shields.io/badge/custody-none-e8edf4?style=flat-square&labelColor=030812">
   <img alt="license" src="https://img.shields.io/badge/license-MIT-e8edf4?style=flat-square&labelColor=030812">
@@ -84,16 +84,43 @@ RUNNER WATCH is not a price call. It marks where money is concentrating right no
 
 ## What the board looked like
 
-Snapshot from **2026-09-17**. The live figures are on the site and in the API; this table is only a record of one moment.
+Snapshot from **2026-09-17, 15:41 UTC**, one chain read and one social day. The live figures are on the site and in the API; this table is only a record of one moment.
+
+**On chain, the last hour**
 
 | Metric | Result |
 |---|---:|
-| Tokens with real wallets in the last hour | 25 |
-| Distinct wallets trading | 1,052 |
-| Verdicts on the board | 24 |
+| Block the read ended at | 65,481,128 |
+| Tokens with real wallets trading | 25 |
+| Distinct wallets | 985 |
+| Wallets buying / selling | 737 / 723 |
+| Fills, after routers and round trips are dropped | 9,418 |
+| Buys / sells | 3,425 / 5,993 |
+| Money through the pools | $4.90M |
+| Biggest single fill | $406,521 · OKEY · sell |
+| Liquidity behind the board | $73.5M |
+
+**On social, the day**
+
+| Metric | Result |
+|---|---:|
+| Posts read | 978 |
+| Headlines read | 85 |
+| Posts carrying a bull or bear tag | 450 |
+| Bull / bear | 317 / 133 |
+| Tickers with enough posts to read | 7 |
+| Kept for the page, with a clear direction | 4 |
+| The loudest six, combined reach | 12,427 followers |
+
+**Verdicts**
+
+| Metric | Result |
+|---|---:|
+| On the board | 24 |
+| CONFIRMED / CONTRADICTED / CHAIN ONLY | 1 / 0 / 23 |
 | Runner watch | 1 |
-| Posts read for the day | 978 |
-| Kept with a clear direction | 4 |
+| Strongest score | INU, +53 |
+| Statements taken by MEDUSA, all time | 14 |
 
 Most rows were **CHAIN ONLY** that day: the social pull covered the chain's biggest names, and the memecoins that move on chain are rarely the ones people post about by cashtag. That gap is itself the finding, and the page says so rather than filling it in.
 
