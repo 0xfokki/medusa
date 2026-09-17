@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <strong>An AI lie detector for retail.</strong>
+  <strong>An autonomous AI agent that reads what retail says against what it trades.</strong>
 </p>
 
 <p align="center">
