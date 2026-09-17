@@ -2078,7 +2078,9 @@ const OPENING = [
   { text: "we bounce from here. we always do.",    emo: "HOPIUM" },
   { text: "not selling. zoom out.",               emo: "COPE"   }
 ];
-if(!STILL && !PHONE.matches) OPENING.forEach((t, i) => setTimeout(() => launchThought({ ...t, ticker: "", demo: true }, null, false), 1400 + i * 1300));
+// two at the first second, then one every half second
+const OPENING_AT = [1000, 1000, 1500, 2000, 2500];
+if(!STILL && !PHONE.matches) OPENING.forEach((t, i) => setTimeout(() => launchThought({ ...t, ticker: "", demo: true }, null, false), OPENING_AT[i]));
 // a read-only peephole for checks from the console; nothing on the page calls it
 window.__medusa = { peek: () => ({ sparks: sparks.length, rings: rings.length, callouts: callouts.length, floaters: floaters.map(f => f.text), surged: tentacles.filter(s => s.surge).length }),
   refresh: () => { if(LIVE_CHAIN) LIVE_CHAIN.updated = "1970"; return pollChain(); } };
