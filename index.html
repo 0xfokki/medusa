@@ -1337,12 +1337,12 @@ function fireTrade(tr){
 const QUIET_UNTIL = performance.now() + 5000;
 function tick(){
   const quiet = performance.now() < QUIET_UNTIL;
-  // on a phone the bell is a light beside the headline: trades still spark it, but nothing
-  // flies in and no text floats over it - a visitor's own thought is the one exception
-  if(quiet || PHONE.matches || R() < .56) fireTrade(makeTrade()); else launchThought(pickThought(), null, false);
+  // nothing flies into the bell on its own any more - the simulated thoughts are gone, only
+  // trades spark it, and a visitor's own thought is the one thing that still flies in
+  fireTrade(makeTrade());
   if(!quiet && R() < .02){
     const n=ri(4,6);
-    for(let i=0;i<n;i++) setTimeout(() => { if(PHONE.matches || R()<.6) fireTrade(makeTrade()); else launchThought(pickThought(), null, false); }, i*(90+R()*110));
+    for(let i=0;i<n;i++) setTimeout(() => fireTrade(makeTrade()), i*(90+R()*110));
   }
   setTimeout(tick, 750 + R()*950);
 }
