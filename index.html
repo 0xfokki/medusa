@@ -1364,17 +1364,21 @@ async function apiStats(){
   } catch { apiUp = false; }
 }
 // Somebody else's thought, arriving while you watch.
+let pollPrimed = false;
 async function apiPoll(){
   if(!apiUp) return;
   try {
     const r = await fetch(API + "/thoughts?after=" + lastThoughtId + "&limit=10", { cache: "no-store" });
     if(!r.ok) return;
     const list = (await r.json()).thoughts || [];
+    // the first poll only takes note of what is already there: nothing flies in on load.
+    // From then on, a thought somebody else feeds while you watch still arrives live.
+    const primed = lastThoughtId > 0 || pollPrimed; pollPrimed = true;
     for(const t of list.slice().reverse()){
       if(t.id > lastThoughtId) lastThoughtId = t.id;
       if(seenThought.has(t.id)) continue;
       seenThought.add(t.id);
-      launchThought({ text: t.text, emo: t.emo, ticker: t.ticker, live: true }, null, false);
+      if(primed) launchThought({ text: t.text, emo: t.emo, ticker: t.ticker, live: true }, null, false);
     }
     if(list.length) apiStats();                         // the server owns both counters
   } catch {}
